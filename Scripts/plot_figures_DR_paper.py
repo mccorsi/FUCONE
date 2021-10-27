@@ -4,7 +4,6 @@ from moabb.datasets import (
     BNCI2015004
 )
 from moabb.analysis.meta_analysis import (
-    compute_dataset_statistics,
     find_significant_differences,
 )
 
@@ -143,7 +142,6 @@ def _plot_topo_features_extensive(path_figures_root, dataset, DR_chan_select):
                 line_width=7.0,
                 chan_mark_color="lightgray",
                 cmap=cmap,
-                # line_color='#3498db',
                 **kw_top,
             )
             cb_obj_1 = ColorbarObj(t_obj_1, cblabel="Counts", **kw_cbar)
@@ -206,13 +204,11 @@ def _plot_topo_features_clin(path_figures_root, dataset, df_res_chan):
         t_obj_1 = TopoObj(
             "topo",
             data,
-            xyz=xy,  # levels=levels,
-            # level_colors=level_colors,  # chan_mark_symbol='cross',
+            xyz=xy,
             line_color="white",
             line_width=7.0,
             chan_mark_color="lightgray",
             cmap=cmap,
-            # line_color='#3498db',
             **kw_top,
         )
         cb_obj_1 = ColorbarObj(t_obj_1, cblabel="Counts", **kw_cbar)
@@ -504,6 +500,5 @@ for sp in results_2class_rf_DR["subject"].unique()[:1]:
 DR_chan_select = DR_chan_select.append(val, True)
 _plot_topo_features_clin(path_figures_root=path_figures_root, dataset=BNCI2015004(), df_res_chan=DR_chan_select)
 
-##
 
 

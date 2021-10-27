@@ -25,14 +25,11 @@ def _plot_results_compute_dataset_statistics(stats, filename):
     columns = stats["pipe1"].unique()
     rows = stats["pipe2"].unique()
     data = np.array(stats["p"]).reshape((len(rows), len(rows)))
-    # stats_heatmap = pd.DataFrame(columns=columns, index=rows, data=data)
     pval_heatmap = pd.DataFrame(columns=columns, index=rows, data=P)
     tval_heatmap = pd.DataFrame(columns=columns, index=rows, data=T)
 
-    # mask = np.triu(np.ones_like(stats_heatmap, dtype=np.bool))
     mask = np.invert(np.tril(pval_heatmap < 0.05))
     mask = mask[1:, :-1]
-    # stats_heatmap_2 = stats_heatmap.iloc[1:, :-1].copy()
     tval_heatmap_2 = tval_heatmap.iloc[1:, :-1].copy()
     vmin = -max(abs(tval_heatmap_2.min().min()), abs(tval_heatmap_2.max().max()))
     vmax = max(abs(tval_heatmap_2.min().min()), abs(tval_heatmap_2.max().max()))
@@ -47,7 +44,6 @@ def _plot_results_compute_dataset_statistics(stats, filename):
             linewidths=1,
             vmin=vmin,
             vmax=vmax,
-            # vmin=0, vmax=0.05,
             cbar_kws={"label": "signif. t-val (p<0.05)"},
         )
         bottom, top = ax.get_ylim()
@@ -90,7 +86,6 @@ def _plot_rainclouds(df_results, hue_order, path_figures_root, title, filename):
     ax.spines["top"].set_visible(False)
     plt.title(title)
     plt.xlim((0, 1))  # to have always the same scale
-    # plt.yticks(rotation=45)
     plt.savefig(path_figures_root + filename + "_WithinSession.pdf", dpi=300)
 
 ## dictionary that contains the colors associated to each case studied in the paper
