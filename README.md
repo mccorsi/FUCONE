@@ -1,14 +1,22 @@
 # FUCONE: FUnctional COnnectivity eNsemble mEthod to enhance BCI performance
-
+---
 This repository contains the code and supporting documents associated with the manuscript:
 
 => put link to arXiv here
 
+---
+Authors:
+* [Marie-Constance Corsi](https://marieconstance-corsi.netlify.app), Postdoctoral Researcher, Aramis team-project, Inria Paris, Paris Brain Institute
+* [Sylvain Chevallier](https://sylvchev.github.io), Associate professor, LISV, Paris-Saclay University
+* [Fabrizio De Vico Fallani](https://sites.google.com/site/devicofallanifabrizio/), Research Scientist, Aramis team-project, Inria Paris, Paris Brain Institute
+* [Florian Yger](http://www.yger.fr), Associate professor, LAMSADE, Paris-Dauphine University
+
+---
 Please cite as:
 Corsi, M.-C., Chevallier, S., De Vico Fallani, F., & Yger, F. (2021). FUCONE: FUnctional COnnectivity eNsemble mEthod to enhance BCI performance. ArXiv, 2021.XXXXXXXXX
 + link to doi
 
-
+---
 
 ## Abstract
 => copy/paste the abstract
@@ -27,20 +35,20 @@ This repository contains the code used to run the analysis performed and to plot
 ## Figures
 
 ### Figure 1 - The FUCONE approach (generic view)
-+ insert fig & legend
-
+=> insert fig & legend
 
 ### Figure 2 - Functional connectivity metrics
-+ insert fig & legend
+=> insert fig & legend
 
 ### Figure 3 - Frequency bands
-+ insert fig & legend
+=> insert fig & legend
 
 ### Figure 4 - Ensemble building
-+ insert fig & legend
+=> insert fig & legend
 
 ### Figure 5 - Replicability assessments and comparison with state-of-the-art pipelines
-+ insert fig & legend
+=> insert fig & legend
+
 
 ## TODO
 - check scripts (complete list..) + update paths + change filenames w/ FUCONE (?)
