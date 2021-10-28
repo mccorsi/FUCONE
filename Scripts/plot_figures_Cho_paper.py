@@ -26,15 +26,11 @@ def _plot_results_compute_dataset_statistics(stats, filename):
     plt.style.use("classic")
     columns = stats["pipe1"].unique()
     rows = stats["pipe2"].unique()
-    data = np.array(stats["p"]).reshape((len(rows), len(rows)))
-    # stats_heatmap = pd.DataFrame(columns=columns, index=rows, data=data)
     pval_heatmap = pd.DataFrame(columns=columns, index=rows, data=P)
     tval_heatmap = pd.DataFrame(columns=columns, index=rows, data=T)
 
-    # mask = np.triu(np.ones_like(stats_heatmap, dtype=np.bool))
     mask = np.invert(np.tril(pval_heatmap < 0.05))
     mask = mask[1:, :-1]
-    # stats_heatmap_2 = stats_heatmap.iloc[1:, :-1].copy()
     tval_heatmap_2 = tval_heatmap.iloc[1:, :-1].copy()
     vmin = -max(abs(tval_heatmap_2.min().min()), abs(tval_heatmap_2.max().max()))
     vmax = max(abs(tval_heatmap_2.min().min()), abs(tval_heatmap_2.max().max()))
@@ -189,7 +185,7 @@ path_csv_root = basedir + "/1_Dataset-csv/" + d.code + "/"
 path_data_root = basedir + "/2_Dataset-npz/" + d.code + "/"
 path_figures_root = basedir + "/0_Figures/" + d.code + "/"
 
-## section 1.1 - FC metrics comparison
+## FC metrics comparison
 freqbands = {
     "defaultBand": [8, 35],
 }
@@ -253,7 +249,7 @@ filename = (
 _plot_results_compute_dataset_statistics(stats_least, filename)
 
 
-## plot accuracies
+# plot accuracies
 fc_tickslabels=['Instantaneous+EN',"ImCoh+EN","PLV+EN","PLI+EN","wPLI2-d+EN","AEC+EN"]
 
 # group level
@@ -328,7 +324,7 @@ plt.savefig(
     dpi=300,
 )
 
-## section 1.2 - Frequency bands
+## Frequency bands
 spectral_met = [
     "instantaneous+elasticnet",
     "imcoh+elasticnet",

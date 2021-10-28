@@ -30,7 +30,7 @@ import numpy as np
 from mne.epochs import BaseEpochs
 from sklearn.metrics import get_scorer
 
-from pyriemann.classification import MDM, FgMDM
+from pyriemann.classification import FgMDM
 from pyriemann.estimation import Coherences
 
 
@@ -93,10 +93,6 @@ def _compute_fc_subtrial(epoch, delta=1, ratio=0.5, method="coh", fmin=8, fmax=3
     nb_subtrials = int(L * (1 / (sliding + delta) + 1 / delta))
     nbsamples_subtrial = delta * sfreq
 
-    # TODO:
-    #  - reboot computation options depending on the frequency options, faveage=False, but issue on AEC /PLM :/
-    #  - robust estimators : bootstrap over subtrials, sub-subtrials & z-score, ways to remove outliers
-
     # X, total nb trials over the session(s) x nb channels x nb samples
     X = np.squeeze(epoch.get_data())
     subtrials = np.empty((nb_subtrials, nb_chan, int(win)))
@@ -137,49 +133,7 @@ def _compute_fc_subtrial(epoch, delta=1, ratio=0.5, method="coh", fmin=8, fmax=3
         # output : nb_channels x nb_channels -> no need to rearrange the matrix
     elif method == "cov":
         c = ledoit_wolf(X.T)[0]  # oas ou fast_mcd
-    elif method == "plm":
-        # adapted from the matlab code from https://github.com/fieldtrip/fieldtrip/blob/master/connectivity/ft_connectivity_plm.m  # noqa
-        # TODO: compare matlab/python plm's output
-        # no need to filter before because integration in the frequency band later on
 
-        # apply hilbert transform first
-        h_sub_epoch = sub_epoch.apply_hilbert()
-        input = h_sub_epoch.get_data()
-
-        ph_min = 0.1  # Eps of Eq.(17) of the manuscript
-        f = [
-            int(sfreq / nbsamples_subtrial) * x
-            for x in range(int(nbsamples_subtrial) - 1)
-        ]
-        # B: bandwidth, in hertz
-        B = fmax - fmin
-        f_diff = np.zeros((len(f), 1))
-        for i in range(len(f)):
-            f_diff[i] = f[i] - sfreq
-        idx_f_integr_temp = np.where(
-            np.logical_and(np.abs(f) < B, np.abs(f_diff) < B) == True
-        )
-        idx_f_integr = idx_f_integr_temp[1]
-
-        p = np.zeros((nb_chan, nb_chan, len(input)))
-        for i in range(len(input)):
-            for kchan1 in range(nb_chan - 2):
-                for kchan2 in range((kchan1 + 1), nb_chan):
-                    temp = np.fft.fft(
-                        input[i, kchan1, :] * np.conjugate(input[i, kchan2, :])
-                    )
-                    temp[0] = temp[0] * (abs(np.angle(temp[0])) > ph_min)
-                    # TODO: check temp values, they are really low
-                    temp = np.power((abs(temp)), 2)
-                    p_temp = np.sum(temp[idx_f_integr,]) / np.sum(temp)
-                    p[kchan1, kchan2, i] = p_temp
-                    p[kchan2, kchan1, i] = p_temp
-                    # to make it symmetrical i guess
-        # new, not in the matlab code, average over the
-        # subtrials + normalization:
-        m = np.mean(p, axis=2)
-        c1 = m / np.max(m) + np.identity(nb_chan)
-        c = np.moveaxis(c1, -1, 0)
     return c
 
 
@@ -290,9 +244,6 @@ class FunctionalTransformer(TransformerMixin, BaseEstimator):
                 return Xfc
 
             fcache = hashlib.md5(X.get_data()).hexdigest() + self.cname
-            # fcache = osp.join(
-            #     "./", fcache
-            # )  # line changed because self.preproc_dir leads to mne_data folder ^^'
             if osp.isfile(fcache):
                 return np.load(fcache)["Xfc"]
             else:
@@ -306,7 +257,7 @@ class FunctionalTransformer(TransformerMixin, BaseEstimator):
                         fmin=self.fmin,
                         fmax=self.fmax,
                     )
-                # np.savez_compressed(fcache, Xfc=Xfc)
+
 
             return Xfc
 
@@ -472,16 +423,7 @@ class FC_DimRed(TransformerMixin, BaseEstimator):
             
         return self
 
-    def transform(self, X, y=None):
-        # to check that we actually perform a DR
-        # print(
-        # "#################\n" +
-        # f"List of channels selected: {self.node_select_}\n" +
-        # f"Number of selected channels: {len(self.node_select_)}\n" +
-        # f"Best parameters: {self.best_param_}\n" +
-        # f"X shape: {X[:, self.node_select_, :][:, :, self.node_select_].shape}\n" +
-        # "#############"
-        # )
+    def transform(self, X):
 
         return X[:, self.node_select_, :][:, :, self.node_select_]
 
@@ -544,7 +486,7 @@ class WithinSessionEvaluationFCDR(BaseEvaluation):
                         if isinstance(est[1], FC_DimRed):
                             allclf.fit(X_, y_)
                             thres, n_dr = p[est[0]].best_param_
-                            datapath = f"Chan_select"  # "2_Dataset-npz/"+dataset+"
+                            datapath = f"Chan_select"
                             fn = f"{datapath}/ch_select-{dataset.code}-{subject}-{session}-{name}-{self.fmin}-{self.fmax}.npz"
                             np.savez_compressed(
                                 fn, ch_names_select=p[est[0]].node_select_

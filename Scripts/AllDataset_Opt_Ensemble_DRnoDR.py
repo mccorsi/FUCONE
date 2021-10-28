@@ -1,6 +1,6 @@
 """
 ==============================================================
-Cho2017 - Parameters optimization: Ensemble - Rigoletto
+Cho2017 - Parameters optimization: Ensemble - FUCONE
 ===============================================================
 This module is design to select the best ensemble configuration that enhances the accuracy
 
@@ -9,7 +9,7 @@ This module is design to select the best ensemble configuration that enhances th
 #          Marie-Constance Corsi <marie.constance.corsi@gmail.com>
 #
 # License: BSD (3-clause)
-import os.path as osp
+
 import os
 import numpy as np
 import pandas as pd
@@ -18,33 +18,25 @@ from tqdm import tqdm
 from sklearn.base import clone
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.ensemble import StackingClassifier
-from sklearn.feature_selection import SelectKBest, mutual_info_classif
 from sklearn.linear_model import (
-    RidgeClassifier,
-    LogisticRegressionCV,
     LogisticRegression,
 )
 from sklearn.metrics import balanced_accuracy_score, roc_auc_score, cohen_kappa_score
 from sklearn.model_selection import GridSearchCV, StratifiedKFold
-from sklearn.pipeline import make_pipeline, Pipeline
+from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import LabelEncoder
 from sklearn.svm import SVC
 
-from pyriemann.estimation import Covariances
 from pyriemann.spatialfilters import CSP
 from pyriemann.tangentspace import TangentSpace
 from pyriemann.classification import MDM, FgMDM
 
-from moabb.evaluations import WithinSessionEvaluation
 from moabb.datasets import (
     Cho2017,
-    Schirrmeister2017,
     BNCI2014001,
     PhysionetMI,
-    BNCI2015004,
 )
-from moabb.paradigms import FilterBankLeftRightImagery, LeftRightImagery
-from moabb.pipelines.utils import FilterBank
+from moabb.paradigms import LeftRightImagery
 from moabb.pipelines.csp import TRCSP
 
 from fc_pipeline import (
@@ -52,16 +44,14 @@ from fc_pipeline import (
     EnsureSPD,
     FC_DimRed,
     GetData,
-    WithinSessionEvaluationFCDR,
 )
 
-# %%
-if os.path.basename(os.getcwd()) == "RIGOLETTO":
-    os.chdir("moabb_connect")
+##
+if os.path.basename(os.getcwd()) == "FUCONE":
+    os.chdir("Database")
 basedir = os.getcwd()
 
-# datasets = [Cho2017()]
-datasets = [Cho2017(), BNCI2014001(), PhysionetMI()]  # Schirrmeister2017(),
+datasets = [Cho2017(), BNCI2014001(), PhysionetMI()]
 
 spectral_met = ["cov", "imcoh", "plv", "wpli2_debiased", "instantaneous"]
 print(
@@ -125,7 +115,7 @@ step_fc = [
 
 #%% Specific evaluation for ensemble learning
 for d in datasets:
-    subj = d.subject_list  # DONE Suppress subject list
+    subj = d.subject_list
     path_csv_root = basedir + "/1_Dataset-csv/" + d.code.replace(" ", "-")
     path_data_root = basedir + "/2_Dataset-npz/" + d.code.replace(" ", "-")
     path_data_root_chan = path_data_root + "/Chan_select/"
@@ -136,7 +126,7 @@ for d in datasets:
     for f in freqbands:
         fmin = freqbands[f][0]
         fmax = freqbands[f][1]
-        subjects = subj  # DONE: change for each dataset
+        subjects = subj
         for subject in tqdm(subjects, desc="subject"):
             fmin = freqbands["defaultBand"][0]
             fmax = freqbands["defaultBand"][1]
@@ -148,7 +138,6 @@ for d in datasets:
             nb_nodes = [int(p / 100.0 * nchan) for p in percent_nodes]
 
             ppl_DR, ppl_noDR, ppl_ens, baseline_ppl = {}, {}, {}, {}
-            # DONE : add ppl_noDR, ppl_ens_noDR, remove ppl_cov => cov partout
             gd = GetData(paradigm, d, subject)
             baseline_ppl["TRCSP+LDA"] = Pipeline(steps=[("gd", gd)] + step_trcsp)
             baseline_ppl["RegCSP+shLDA"] = Pipeline(steps=[("gd", gd)] + step_regcsp)
@@ -287,4 +276,4 @@ for d in datasets:
     dataset_res = pd.DataFrame(dataset_res)
     dataset_res.to_csv(
         path_csv_root + "/OptEnsemble-DRnoDR-allsubject.csv"
-    )  # DONE change cho ref
+    )

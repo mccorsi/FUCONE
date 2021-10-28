@@ -1,6 +1,6 @@
 """
 ==============================================================
-All datasets - evaluation - Rigoletto
+All datasets - evaluation - FUCONE
 ===============================================================
 """
 # Authors: Sylvain Chevallier <sylvain.chevallier@uvsq.fr>,
@@ -20,53 +20,44 @@ from sklearn.base import clone
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.ensemble import StackingClassifier
 from sklearn.exceptions import ConvergenceWarning
-from sklearn.feature_selection import SelectKBest, mutual_info_classif
 from sklearn.linear_model import (
-    RidgeClassifier,
-    LogisticRegressionCV,
     LogisticRegression,
 )
-from sklearn.metrics import balanced_accuracy_score, roc_auc_score, cohen_kappa_score
+from sklearn.metrics import balanced_accuracy_score
 from sklearn.model_selection import GridSearchCV, StratifiedKFold
-from sklearn.pipeline import make_pipeline, Pipeline
+from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import LabelEncoder
 from sklearn.svm import SVC
 
-from pyriemann.estimation import Covariances
 from pyriemann.spatialfilters import CSP
 from pyriemann.tangentspace import TangentSpace
 from pyriemann.classification import MDM, FgMDM
 
-from moabb.evaluations import WithinSessionEvaluation
+
 from moabb.datasets import (
     BNCI2015004,  # rf
 )
-from moabb.paradigms import LeftRightImagery, MotorImagery
-from moabb.pipelines.utils import FilterBank
+from moabb.paradigms import MotorImagery
 from moabb.pipelines.csp import TRCSP
 
 from fc_pipeline import (
     FunctionalTransformer,
     EnsureSPD,
     FC_DimRed,
-    GetData,
     GetDataMemory,
-    WithinSessionEvaluationFCDR,
 )
 
 warnings.filterwarnings(action='ignore', category=ConvergenceWarning)
 
-#TODO: add code to save list of selected channes to plot the topographies afterwards
-
 ##
-if os.path.basename(os.getcwd()) == "RIGOLETTO":
-    os.chdir("moabb_connect")
+if os.path.basename(os.getcwd()) == "FUCONE":
+    os.chdir("Database")
 basedir = os.getcwd()
 
 datasets = [BNCI2015004()]
 
 
-spectral_met = ["cov", "imcoh", "instantaneous"]  # , "plv", "wpli2_debiased"]
+spectral_met = ["cov", "imcoh", "instantaneous"]  
 print(
     "#################" + "\n"
     "List of pre-selected FC metrics: " + "\n" + str(spectral_met) + "\n"
@@ -88,7 +79,7 @@ print(
 threshold = [0.05]
 percent_nodes = [10, 20, 30]
 
-#%% Baseline evaluations
+## Baseline evaluations
 bs_fmin, bs_fmax = 8, 35
 ft = FunctionalTransformer(delta=1, ratio=0.5, method="cov", fmin=bs_fmin, fmax=bs_fmax)
 step_trcsp = [("trcsp", TRCSP(nfilter=6)), ("lda", LDA())]
@@ -122,14 +113,9 @@ step_fc = [
         ),
     ),
 ]
-#%% Specific list of channels definition, cf in the paper, some of them wer noisy: https://storage.googleapis.com/plos-corpus-prod/10.1371/journal.pone.0123727/1/pone.0123727.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=wombat-sa%40plos-prod.iam.gserviceaccount.com%2F20210906%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20210906T105642Z&X-Goog-Expires=86400&X-Goog-SignedHeaders=host&X-Goog-Signature=49275c216ee41ee40065153512faafae7be2c1e3a9995f095af3bd7f0c65047f30a24f757c551253d54343a352598b9301986627bddfa4cb2b0da4953064736e0775906fd6820f61420ce852d039f3e0f1ca431500204ce26f07c94c2f93da267a6c8b82dcb380a137902a9c5438823e691d381727b6c3840f602005fce507f18a4626e9e5aed7fcd66d29a9d9a53fad4229708a92075856623ec4306c40efd8680f74ed386896dd1510a94970390581430a40e930200195a51eeaebc31d561e8110b34bc0cb68c640b56879cd6faab94e7f02c8f3b7e51fe6d82ed06b6545a71ebf50ebbb0fba32c96f8f28097b248f885390a13a33889d0174b0370268183f
-# list_chann_orig = ['AFz', 'F7', 'F3', 'Fz', 'F4', 'F8', 'FC3', 'FCz', 'FC4', 'T3', 'C3', 'Cz', 'C4', 'T4',
-#               'CP3', 'CPz', 'CP4', 'P7', 'P5', 'P3', 'P1', 'Pz', 'P2', 'P4', 'P6', 'P8', 'PO3', 'PO4', 'O1', 'O2']
-#list_chann = ['F3', 'Fz', 'F4', 'F8', 'FC3', 'FCz', 'FC4', 'C3', 'Cz', 'C4', 'T4',
- #              'CP3', 'CPz', 'CP4', 'P5', 'P3', 'P1', 'Pz', 'P2', 'P4', 'P6', 'P8', 'PO3', 'PO4', 'O1', 'O2']
-
+## Specific list of channels definition, cf in the paper, some of them wer noisy: https://storage.googleapis.com/plos-corpus-prod/10.1371/journal.pone.0123727/1/pone.0123727.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=wombat-sa%40plos-prod.iam.gserviceaccount.com%2F20210906%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20210906T105642Z&X-Goog-Expires=86400&X-Goog-SignedHeaders=host&X-Goog-Signature=49275c216ee41ee40065153512faafae7be2c1e3a9995f095af3bd7f0c65047f30a24f757c551253d54343a352598b9301986627bddfa4cb2b0da4953064736e0775906fd6820f61420ce852d039f3e0f1ca431500204ce26f07c94c2f93da267a6c8b82dcb380a137902a9c5438823e691d381727b6c3840f602005fce507f18a4626e9e5aed7fcd66d29a9d9a53fad4229708a92075856623ec4306c40efd8680f74ed386896dd1510a94970390581430a40e930200195a51eeaebc31d561e8110b34bc0cb68c640b56879cd6faab94e7f02c8f3b7e51fe6d82ed06b6545a71ebf50ebbb0fba32c96f8f28097b248f885390a13a33889d0174b0370268183f
 dict_list_chann=dict()
-# TODO: Patient A, to be considered here
+# Patient A, considered here
 dict_list_chann["1"]=[#'AFz', 'F7',
                       'F3', 'Fz', 'F4', 'F8', 'FC3', 'FCz', 'FC4',
                       #'T3',
@@ -211,7 +197,8 @@ dict_list_chann["9"]=[#'AFz', 'F7',
                      'C3', 'Cz', 'C4',
                      #'T4',
                     'CP3', 'CPz', 'CP4', 'P7', 'P5', 'P3', 'P1', 'Pz', 'P2', 'P4', 'P6', 'P8', 'PO3', 'PO4', 'O1', 'O2']
-#%% Specific evaluation for ensemble learning
+
+## Specific evaluation for ensemble learning
 for d in datasets:
     subj = d.subject_list[:2]  # we work only with patient A here
     path_csv_root = basedir + "/1_Dataset-csv/" + d.code.replace(" ", "-")
@@ -420,6 +407,6 @@ for d in datasets:
                                 dataset_res.append(res)
     dataset_res = pd.DataFrame(dataset_res)
     dataset_res.to_csv(
-        path_csv_root + "/OptEnsemble-coreFC-allsubject-memory-2class-rf-invertloop-DRnoDR_IndivPreselectPaper_PatientA.csv"
+        path_csv_root + "/OptEnsemble-coreFC-allsubject-memory-2class-rf-invertloop-DR_IndivPreselectPaper_PatientA.csv"
     )
-    print("saving " + path_csv_root + "/OptEnsemble-coreFC-allsubject-memory-2class-rf-invertloop-DRnoDR_IndivPreselectPaper_PatientA.csv")
+    print("saving " + path_csv_root + "/OptEnsemble-coreFC-allsubject-memory-2class-rf-invertloop-DR_IndivPreselectPaper_PatientA.csv")

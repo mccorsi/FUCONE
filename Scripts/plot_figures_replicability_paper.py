@@ -643,7 +643,6 @@ for i, pip1 in enumerate(results_meta_rh_f["pipeline"].unique()):
             )
 
 # plot the performance distribution over the subjects & the datasets
-
 plt.style.use("dark_background")
 sns.catplot(
     x="dataset",

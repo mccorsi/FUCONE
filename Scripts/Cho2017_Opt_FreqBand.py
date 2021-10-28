@@ -1,6 +1,6 @@
 """
 ==============================================================
-Cho2017 - Parameters optimization: Frequency band - Rigoletto
+Cho2017 - Parameters optimization: Frequency band - FUCONE
 ===============================================================
 This module is design to select the frequency bands that enhance the accuracy
 
@@ -10,9 +10,7 @@ This module is design to select the frequency bands that enhance the accuracy
 #
 # License: BSD (3-clause)
 
-import os.path as osp
 import os
-import numpy as np
 import pandas as pd
 
 from sklearn.pipeline import Pipeline
@@ -21,7 +19,6 @@ from sklearn.linear_model import (
 )
 
 from pyriemann.tangentspace import TangentSpace
-from pyriemann.estimation import Coherences
 
 from moabb.paradigms import LeftRightImagery
 from moabb.datasets import (
@@ -32,26 +29,25 @@ from fc_pipeline import (
     FunctionalTransformer,
     EnsureSPD,
     WithinSessionEvaluationFCDR,
-    AvgFC,
 )
 
-# %%
-if os.path.basename(os.getcwd())=='RIGOLETTO':
-    os.chdir('moabb_connect')
+##
+if os.path.basename(os.getcwd())=='FUCONE':
+    os.chdir('Database')
 basedir = os.getcwd()
 
-#%%
+##
 threshold = [0.05, 0.01, 0.005]
 nb_nodes = [5, 10, 15]
 datasets = [Cho2017()]
-# TODO: put here the list of pre-selected subjects - done
+# list of pre-selected subjects - done
 subj = [14, 43, 50, 35, 3, 29, 7, 17, 40, 38]
 print( "#################" + "\n"
         "List of pre-selected subjects from Cho2017 (5 best and 5 least performant): " + "\n"
        + str(subj) + "\n" 
        "#################")
-# TODO: put here the list of pre-selected FC metrics
-spectral_met = ["coh", "imcoh", "plv", "wpli2_debiased", 'instantaneous', 'lagged'] #TODO: update
+# list of pre-selected FC metrics
+spectral_met = ["coh", "imcoh", "plv", "wpli2_debiased", 'instantaneous', 'lagged']
 print( "#################" + "\n"
         "List of pre-selected FC metrics: " + "\n"
        + str(spectral_met) + "\n" 
@@ -118,8 +114,6 @@ for d in datasets:
             overwrite=True,
         )
         results = evaluation.process(pipelines)
-        # Freq = pd.DataFrame([f]*len(results), columns={'FreqBand'})
-        # results=pd.concat((results,Freq))
         results['FreqBand'] = f
         results.to_csv(
                 path_csv_root
@@ -128,19 +122,7 @@ for d in datasets:
                 + ".csv"
             )
 
-# %% script to compare results between datasets & plots
-import seaborn as sns
-from moabb.analysis.meta_analysis import (
-    compute_dataset_statistics,
-    find_significant_differences,
-)
-from moabb.analysis.plotting import summary_plot
-import matplotlib.pyplot as plt
-
-# path_figures_root = "0_Figures/" + d.code
-
-plt.style.use("dark_background")
-
+## script to compare results between datasets & plots
 paradigm = LeftRightImagery(fmin=8, fmax=35)
 ch_labels = dict()  # dict that contains all the channel labels
 all_res_temp = pd.DataFrame()

@@ -1,6 +1,6 @@
 """
 ==============================================================
-All datasets - evaluation - Rigoletto
+All datasets - evaluation - FUCONE
 ===============================================================
 """
 # Authors: Sylvain Chevallier <sylvain.chevallier@uvsq.fr>,
@@ -20,54 +20,41 @@ from sklearn.base import clone
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.ensemble import StackingClassifier
 from sklearn.exceptions import ConvergenceWarning
-from sklearn.feature_selection import SelectKBest, mutual_info_classif
 from sklearn.linear_model import (
-    RidgeClassifier,
-    LogisticRegressionCV,
     LogisticRegression,
 )
 from sklearn.metrics import balanced_accuracy_score, roc_auc_score, cohen_kappa_score
 from sklearn.model_selection import GridSearchCV, StratifiedKFold
-from sklearn.pipeline import make_pipeline, Pipeline
+from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import LabelEncoder
 from sklearn.svm import SVC
 
-from pyriemann.estimation import Covariances
 from pyriemann.spatialfilters import CSP
 from pyriemann.tangentspace import TangentSpace
-from pyriemann.classification import MDM, FgMDM
+from pyriemann.classification import FgMDM
 
-from moabb.evaluations import WithinSessionEvaluation
 from moabb.datasets import (
-    Cho2017,
-    Schirrmeister2017,
-    BNCI2014001,
     PhysionetMI,
-    BNCI2015004,
 )
-from moabb.paradigms import FilterBankLeftRightImagery, LeftRightImagery
-from moabb.pipelines.utils import FilterBank
+from moabb.paradigms import LeftRightImagery
 from moabb.pipelines.csp import TRCSP
 
 from fc_pipeline import (
     FunctionalTransformer,
     EnsureSPD,
     FC_DimRed,
-    GetData,
     GetDataMemory,
-    WithinSessionEvaluationFCDR,
 )
 
 warnings.filterwarnings(action='ignore', category=ConvergenceWarning)
 
 
-# %%
-if os.path.basename(os.getcwd()) == "RIGOLETTO":
+##
+if os.path.basename(os.getcwd()) == "FUCONE":
     os.chdir("moabb_connect")
 basedir = os.getcwd()
 
-# Done : Cho2017(), BNCI2014001(), 
-datasets = [PhysionetMI()]  # Schirrmeister2017(),
+datasets = [PhysionetMI()]
 
 spectral_met = ["cov", "imcoh", "plv", "wpli2_debiased", "instantaneous"]
 print(
@@ -91,7 +78,7 @@ print(
     "#################"
 )
 
-#%% Baseline evaluations
+## Baseline evaluations
 bs_fmin, bs_fmax = 8, 35
 ft = FunctionalTransformer(delta=1, ratio=0.5, method="cov", fmin=bs_fmin, fmax=bs_fmax)
 step_trcsp = [("trcsp", TRCSP(nfilter=6)), ("lda", LDA())]
@@ -126,7 +113,7 @@ step_fc = [
     ),
 ]
 
-#%% Specific evaluation for ensemble learning
+## Specific evaluation for ensemble learning
 for d in datasets:
     subj = d.subject_list  # DONE Suppress subject list
     path_csv_root = basedir + "/1_Dataset-csv/" + d.code.replace(" ", "-")
@@ -190,9 +177,6 @@ for d in datasets:
                     delta=1, ratio=0.5, method=sm, fmin=fmin, fmax=fmax
                 )
                 if sm == "cov":
-                    # ppl_DR["cov+elasticnet"] = Pipeline(
-                    #     steps=[("gd", gd)] + step_cov
-                    # )
                     ppl_noDR["cov+elasticnet"] = Pipeline(
                         steps=[("gd", gd)] + step_cov
                     )
@@ -203,20 +187,12 @@ for d in datasets:
                         classifier=FgMDM(metric="riemann", tsupdate=False),
                     )
                     pname_postDR = sm + "+DR+elasticnet"
-                    # ppl_DR[pname_postDR] = Pipeline(
-                    #     steps=[
-                    #         ("gd", gd),
-                    #         ("DR", ft_DR),
-                    #     ]
-                    #     + step_fc
-                    # )
                     pname_noDR = sm + "+elasticnet"
                     ppl_noDR[pname_noDR] = Pipeline(
                         steps=[("gd", gd)] + step_fc
                     )
 
             ################ Ensemble from single features classif with elasticnet ################
-            # DR_estimators = [(n, ppl_DR[n]) for n in ppl_DR]
             noDR_estimators = [(n, ppl_noDR[n]) for n in ppl_noDR]
             cvkf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
@@ -227,14 +203,6 @@ for d in datasets:
                 intercept_scaling=1000.0,
                 solver="saga",
             )
-            # scl_elastic_DR = StackingClassifier(
-            #     estimators=DR_estimators,
-            #     cv=cvkf,
-            #     n_jobs=1,
-            #     final_estimator=elastic_estimator,
-            #     stack_method="predict_proba",
-            # )
-            # ppl_ens["ensemble-DR"] = scl_elastic_DR
             scl_elastic_noDR = StackingClassifier(
                 estimators=noDR_estimators,
                 cv=cvkf,

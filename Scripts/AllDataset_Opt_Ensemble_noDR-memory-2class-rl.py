@@ -1,6 +1,6 @@
 """
 ==============================================================
-All datasets - evaluation - Rigoletto
+All datasets - evaluation - FUCONE
 ===============================================================
 """
 # Authors: Sylvain Chevallier <sylvain.chevallier@uvsq.fr>,
@@ -20,10 +20,7 @@ from sklearn.base import clone
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.ensemble import StackingClassifier
 from sklearn.exceptions import ConvergenceWarning
-from sklearn.feature_selection import SelectKBest, mutual_info_classif
 from sklearn.linear_model import (
-    RidgeClassifier,
-    LogisticRegressionCV,
     LogisticRegression,
 )
 from sklearn.metrics import balanced_accuracy_score, roc_auc_score, cohen_kappa_score
@@ -32,57 +29,43 @@ from sklearn.pipeline import make_pipeline, Pipeline
 from sklearn.preprocessing import LabelEncoder
 from sklearn.svm import SVC
 
-from pyriemann.estimation import Covariances
 from pyriemann.spatialfilters import CSP
 from pyriemann.tangentspace import TangentSpace
 from pyriemann.classification import MDM, FgMDM
 
-from moabb.evaluations import WithinSessionEvaluation
 from moabb.datasets import (
     Cho2017,  # lr
     Schirrmeister2017,  # lrfR
     BNCI2014001,  # lrfT
-    PhysionetMI,  # lrfR
     BNCI2015004,  # rf
     BNCI2014004,  # rl
     BNCI2014002,  # rf
     BNCI2015001,  # rf
     Zhou2016,  # lrf
     Weibo2014, # lrfR
-    MunichMI,  # lr
-    Lee2019_MI,  # lr
-    Ofner2017,  # lr
-    AlexMI,  # rfR
-    Lee2019_MI,  # lr
-    MunichMI,  # lr
     
 )
-from moabb.paradigms import LeftRightImagery, MotorImagery
-from moabb.pipelines.utils import FilterBank
-from moabb.pipelines.csp import TRCSP
+from moabb.paradigms import MotorImagery
 
 from fc_pipeline import (
     FunctionalTransformer,
     EnsureSPD,
     FC_DimRed,
-    GetData,
     GetDataMemory,
-    WithinSessionEvaluationFCDR,
 )
 
 warnings.filterwarnings(action='ignore', category=ConvergenceWarning)
 
 
 # %%
-if os.path.basename(os.getcwd()) == "RIGOLETTO":
-    os.chdir("moabb_connect")
+if os.path.basename(os.getcwd()) == "FUCONE":
+    os.chdir("Database")
 basedir = os.getcwd()
 
-# Done : Cho2017(), BNCI2014001(),
 # datasets = [PhysionetMI()]  # Weibo2014(), Schirrmeister2017()
 # datasets = [BNCI2015001(), Weibo2014(), BNCI2015004(), BNCI2014001()]
 # datasets = [BNCI2015004(), BNCI2014001(), BNCI2014002(), AlexMI(), Zhou2016(), BNCI2015001()]  # rf PhysionetMI(), Schirrmeister2017()
-datasets = [Zhou2016(), BNCI2014004(), BNCI2014001()] # , Cho2017(), Shin2017A(), MunichMI(), Lee2019_MI()]
+datasets = [Zhou2016(), BNCI2014004(), BNCI2014001()] # , Cho2017()]
 # datasets = [BNCI2014001(), Zhou2016()]  # Weibo2014()
 
 spectral_met = ["cov", "imcoh", "instantaneous"]  # , "plv", "wpli2_debiased"]
@@ -97,7 +80,6 @@ print(
     "List of pre-selected Frequency bands: " + "\n" + str(freqbands) + "\n"
     "#################"
 )
-# events = ["left_hand", "right_hand", "feet", "rest"]
 events = ["left_hand", "right_hand"]
 print(
     "#################" + "\n"
@@ -106,19 +88,10 @@ print(
 )
 threshold = [0.05]
 percent_nodes = [10, 20, 30]
-# print(
-#     "#################" + "\n"
-#     "List of pre-selected thresholds: " + "\n" + str(threshold) + "\n"
-#     "List of pre-selected number of nodes: " + "\n" + str(percent_nodes) + "\n"
-#     "#################"
-# )
 
-
-
-#%% Baseline evaluations
+## Baseline evaluations
 bs_fmin, bs_fmax = 8, 35
 ft = FunctionalTransformer(delta=1, ratio=0.5, method="cov", fmin=bs_fmin, fmax=bs_fmax)
-# step_trcsp = [("trcsp", TRCSP(nfilter=6)), ("lda", LDA())]
 step_regcsp = [
     ("csp", CSP(nfilter=6)),
     ("lda", LDA(solver="lsqr", shrinkage="auto")),
@@ -150,7 +123,7 @@ step_fc = [
     ),
 ]
 
-#%% Specific evaluation for ensemble learning
+## Specific evaluation for ensemble learning
 for d in datasets:
     subj = d.subject_list  # DONE Suppress subject list
     path_csv_root = basedir + "/1_Dataset-csv/" + d.code.replace(" ", "-")
@@ -178,7 +151,6 @@ for d in datasets:
             data_fc[f] = {}
             for subject in tqdm(subjects, desc="subject"):
                 data_fc[f][subject] = {}
-                # paradigm = LeftRightImagery(fmin=fmin, fmax=fmax)
                 paradigm = MotorImagery(events=events, n_classes=len(events), fmin=fmin, fmax=fmax)
                 ep_, _, _ = paradigm.get_data(
                     dataset=d, subjects=[subject], return_epochs=True
@@ -202,7 +174,6 @@ for d in datasets:
             print()
             fmin = freqbands["defaultBand"][0]
             fmax = freqbands["defaultBand"][1]
-            # paradigm = LeftRightImagery(fmin=fmin, fmax=fmax)
             paradigm = MotorImagery(events=events, n_classes=len(events), fmin=fmin, fmax=fmax)
             ep_, _, _ = paradigm.get_data(
                 dataset=d, subjects=[subj[1]], return_epochs=True
@@ -211,10 +182,7 @@ for d in datasets:
             nb_nodes = [int(p / 100.0 * nchan) for p in percent_nodes]
 
             ppl_noDR, ppl_ens, baseline_ppl = {}, {}, {}
-            # ppl_fewFC = {}
-            # ppl_DR = {}
             gd = GetDataMemory(subject, f, "cov", data_fc)
-            # baseline_ppl["TRCSP+LDA"] = Pipeline(steps=[("gd", gd)] + step_trcsp)
             baseline_ppl["RegCSP+shLDA"] = Pipeline(steps=[("gd", gd)] + step_regcsp)
             baseline_ppl["CSP+optSVM"] = Pipeline(steps=[("gd", gd)] + step_csp)
             baseline_ppl["FgMDM"] = Pipeline(steps=[("gd", gd)] + step_mdm)
@@ -224,9 +192,6 @@ for d in datasets:
                     delta=1, ratio=0.5, method=sm, fmin=fmin, fmax=fmax
                 )
                 if sm == "cov":
-                    # ppl_DR["cov+elasticnet"] = Pipeline(
-                    #     steps=[("gd", gd)] + step_cov
-                    # )
                     ppl_noDR["cov+elasticnet"] = Pipeline(
                         steps=[("gd", gd)] + step_cov
                     )
@@ -237,13 +202,6 @@ for d in datasets:
                         classifier=FgMDM(metric="riemann", tsupdate=False),
                     )
                     pname_postDR = sm + "+DR+elasticnet"
-                    # ppl_DR[pname_postDR] = Pipeline(
-                    #     steps=[
-                    #         ("gd", gd),
-                    #         ("DR", ft_DR),
-                    #     ]
-                    #     + step_fc
-                    # )
                     pname_noDR = sm + "+elasticnet"
                     ppl_noDR[pname_noDR] = Pipeline(
                         steps=[("gd", gd)] + step_fc
@@ -261,14 +219,7 @@ for d in datasets:
                 intercept_scaling=1000.0,
                 solver="saga",
             )
-            # scl_elastic_DR = StackingClassifier(
-            #     estimators=DR_estimators,
-            #     cv=cvkf,
-            #     n_jobs=1,
-            #     final_estimator=elastic_estimator,
-            #     stack_method="predict_proba",
-            # )
-            # ppl_ens["ensemble-DR"] = scl_elastic_DR
+
             scl_elastic_noDR = StackingClassifier(
                 estimators=noDR_estimators,
                 cv=cvkf,
@@ -299,8 +250,6 @@ for d in datasets:
                         cvclf.fit(X_[train], y_[train])
                         yp = cvclf.predict(X_[test])
                         acc = balanced_accuracy_score(y_[test], yp)
-                        # auc = roc_auc_score(y_[test], yp)
-                        # kapp = cohen_kappa_score(y_[test], yp)
                         res_info = {
                             "subject": subject,
                             "session": "session_0",
@@ -316,8 +265,6 @@ for d in datasets:
                         }
                         res = {
                             "score": acc,
-                            # "kappa": kapp,
-                            # "accuracy": acc,
                             "pipeline": ppn,
                             "n_dr": nchan,
                             "thres": 0,
@@ -335,12 +282,8 @@ for d in datasets:
                                     thres, n_dr = 0, nchan
                                 ype = est_p.predict(X_[test])
                                 acc = balanced_accuracy_score(y_[test], ype)
-                                # auc = roc_auc_score(y_[test], ype)
-                                # kapp = cohen_kappa_score(y_[test], ype)
                                 res = {
                                     "score": acc,
-                                    # "kappa": kapp,
-                                    # "accuracy": acc,
                                     "pipeline": est_n,
                                     "thres": thres,
                                     "n_dr": n_dr,
@@ -350,6 +293,5 @@ for d in datasets:
     dataset_res = pd.DataFrame(dataset_res)
     dataset_res.to_csv(
         path_csv_root + "/OptEnsemble-coreFC-allsubject-memory-2class-" + "-".join(events) + ".csv"
-        # path_csv_root + "/OptEnsemble-coreFC-allsubject-memory-2class-rf-invertloop.csv"
     )
     print("saving " + path_csv_root + "/OptEnsemble-coreFC-allsubject-memory-" + "-".join(events) + ".csv")

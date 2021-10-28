@@ -29,7 +29,6 @@ def _plot_results_compute_dataset_statistics(stats, filename):
     plt.style.use("classic")
     columns = stats["pipe1"].unique()
     rows = stats["pipe2"].unique()
-    data = np.array(stats["p"]).reshape((len(rows), len(rows)))
     pval_heatmap = pd.DataFrame(columns=columns, index=rows, data=P)
     tval_heatmap = pd.DataFrame(columns=columns, index=rows, data=T)
 
@@ -238,7 +237,7 @@ plt.style.use("dark_background")
 ## Dimension Reduction - Healthy subjects - Schirrmeister dataset
 d = "Schirrmeister2017"
 
-#%% merge the infos in a single dataframe
+# merge the infos in a single dataframe
 spect=["imcoh", "instantaneous"]
 nb_nodes=[16, 32, 48, 64, 80, 96]#, 112]
 ch_pos = pd.read_csv(f"{os.getcwd()}/Datasets_montages_Schirrmeister2017.csv")
@@ -268,7 +267,7 @@ _plot_topo_features_extensive(path_figures_root=path_figures_root, dataset=Schir
 
 palette_DR=sns.color_palette([dict_colors["instantaneous"],
                            dict_colors["imcoh"]])
-#%% plot acc
+# plot acc
 pipelines = DR_chan_select["pipeline"].unique()
 plt.style.use("dark_background")
 results_plot = DR_chan_select

@@ -1,6 +1,6 @@
 """
 ==============================================================
-Cho2017 - Parameters optimization: FC metrics - Rigoletto
+Cho2017 - Parameters optimization: FC metrics - FUCONE
 ===============================================================
 This module is design to select the FC metrics that enhance the accuracy
 
@@ -9,25 +9,20 @@ This module is design to select the FC metrics that enhance the accuracy
 #          Marie-Constance Corsi <marie.constance.corsi@gmail.com>
 #
 # License: BSD (3-clause)
-import os.path as osp
+
 import os
-import numpy as np
-import pandas as pd
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
 from pyriemann.tangentspace import TangentSpace
-from moabb.evaluations import WithinSessionEvaluation
 from moabb.paradigms import LeftRightImagery
 from moabb.datasets import Cho2017
 
 from fc_pipeline import FunctionalTransformer, EnsureSPD, WithinSessionEvaluationFCDR
 
-# %%
-parent_directory = (
-    #"/home/sylchev/src/github/RIGOLETTO/moabb_connect/"
-     "/Users/marieconstance.corsi/Documents/GitHub//RIGOLETTO/moabb_connect/"
-)
-os.chdir(parent_directory)
+##
+if os.path.basename(os.getcwd()) == "FUCONE":
+    os.chdir("Database")
+basedir = os.getcwd()
 
 threshold = [0.05, 0.01, 0.005]
 nb_nodes = [5, 10, 15]
@@ -52,7 +47,7 @@ spectral_met = [
     "aec",
 ]
 
-# TODO: put here the list of pre-selected subjects - done
+# list of pre-selected subjects 
 subj = [14, 43, 50, 35, 3, 29, 7, 17, 40, 38]
 print(
     "#################" + "\n"
@@ -71,7 +66,7 @@ for d in datasets:
     path_data_root_chan = path_data_root + "/Chan_select/"
     path_figures_root = "0_Figures/" + d.code
 
-    os.chdir(os.path.join(parent_directory, path_data_root))
+    os.chdir(os.path.join(basedir, path_data_root))
 
     for f in freqbands:
         fmin = freqbands[f][0]
@@ -114,7 +109,7 @@ for d in datasets:
         )
         results = evaluation.process(pipelines)
         results.to_csv(
-            parent_directory
+            basedir
             + path_csv_root
             + "/res_np_single_pipelines_Cho2017_preSelectedSubj_OptFCMetrics_"
             + f
