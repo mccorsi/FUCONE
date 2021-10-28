@@ -13,6 +13,7 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import os
+import mne
 
 from visbrain.objects import TopoObj, ColorbarObj, SceneObj
 from collections import Counter
@@ -188,44 +189,14 @@ def _plot_topo_features_clin(path_figures_root, dataset, df_res_chan):
             data = list(feat_count.values())
             channels = [str(k) for k in range(len(data))]
 
-        # Plotting properties shared across topoplots and colorbar :
-        kw_top = dict(margin=15 / 100, chan_offset=(0.0, 0.1, 0.0), chan_size=10)
-        kw_cbar = dict(
-            cbtxtsz=12,
-            txtsz=10.0,
-            width=0.3,
-            txtcolor="white",
-            cbtxtsh=1.8,
-            rect=(0.0, -2.0, 1.0, 4.0),
-            border=False,
-        )
-        sc = SceneObj(bgcolor="black", size=(600, 600))
+        mne.viz.plot_topomap(data, xy/10, vmin=None, vmax=None, cmap='magma', sensors=True, res=64, axes=None,
+                             names=ch_names, show_names=True, mask=None, mask_params=None, outlines='head', contours=4,
+                             image_interp='bilinear', show=True, onselect=None, extrapolate='local', sphere=None,
+                             border='mean', ch_type='eeg')
 
-        t_obj_1 = TopoObj(
-            "topo",
-            data,
-            xyz=xy,
-            line_color="white",
-            line_width=7.0,
-            chan_mark_color="lightgray",
-            cmap=cmap,
-            **kw_top,
-        )
-        cb_obj_1 = ColorbarObj(t_obj_1, cblabel="Counts", **kw_cbar)
-        # Add the topoplot and the colorbar to the scene :
-        sc.add_to_subplot(
-            t_obj_1,
-            row=0,
-            col=0,
-            title_color="white",
-            width_max=300,
-            title=f"DR features selection, {p}",
-        )
-        sc.add_to_subplot(cb_obj_1, row=0, col=1, width_max=100)
-        suffix2 = p + "_defaultBand_clinical_PatientA"
-        # screenshot doesn't work :'(
+        suffix2 = p + "_defaultBand_clinical_PatientA.pdf"
         save_pic_path = path_figures_root + "/Topo_Histogram_Chan_Select_" + suffix2
-        sc.preview(mpl=True)
+        plt.savefig(save_pic_path, dpi=300)
 
 ## dictionary that contains the colors associated to each case studied in the paper
 dict_colors={"RegCSP+shLDA":"#0072B2","CSP+optSVM":'#E69F00','FgMDM':'#F0E442','cov':'#009E73',
