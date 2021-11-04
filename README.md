@@ -30,6 +30,8 @@ All data associated with this manuscript are publicly available and can be found
 
 ## Code
 This repository contains the code used to run the analysis performed and to plot the figures.
+To install all the packages used in this work you can directy type in your terminal:
+`pip install -r requirements.txt`
 
 
 ## Figures
@@ -52,6 +54,5 @@ This repository contains the code used to run the analysis performed and to plot
 
 ## TODO
 - check scripts (complete list..) + update paths + change filenames w/ FUCONE (?)
-- requirements.txt (in case...) 
 - check csv files with our results in /Database
 - put link to arXiv (when it is ready)
