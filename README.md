@@ -1,6 +1,8 @@
-# FUnctional COnnectivity eNsemble mEthod to enhance BCI performance - FUCONE
+# Functional connectivity ensemble method to enhance BCI performance - FUCONE
 ---
-This repository contains the code and supporting documents associated with the manuscript
+This repository contains the code and supporting documents associated with the following manuscript:
+
+*Corsi, M.-C., Chevallier, S., De Vico Fallani, F., & Yger, F. (2021). Functional connectivity ensemble method to enhance BCI performance (FUCONE).* 
 
 ---
 Authors:
@@ -9,9 +11,6 @@ Authors:
 * [Fabrizio De Vico Fallani](https://sites.google.com/site/devicofallanifabrizio/), Research Scientist, Aramis team-project, Inria Paris, Paris Brain Institute
 * [Florian Yger](http://www.yger.fr), Associate professor, LAMSADE, Paris-Dauphine University
 
----
-Please cite as:
-Corsi, M.-C., Chevallier, S., De Vico Fallani, F., & Yger, F. (2021). FUnctional COnnectivity eNsemble mEthod to enhance BCI performance (FUCONE). 
 
 ---
 
