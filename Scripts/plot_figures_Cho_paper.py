@@ -17,13 +17,15 @@ import numpy as np
 
 if os.path.basename(os.getcwd()) == "FUCONE":
     os.chdir("Database")
+if os.path.basename(os.getcwd()) == "Scripts":
+    os.chdir("../Database")
 basedir = os.getcwd()
 
 ## specific functions
 def _plot_results_compute_dataset_statistics(stats, filename):
     P, T = find_significant_differences(stats)
 
-    plt.style.use("classic")
+    plt.style.use("dark_background")
     columns = stats["pipe1"].unique()
     rows = stats["pipe2"].unique()
     pval_heatmap = pd.DataFrame(columns=columns, index=rows, data=P)
@@ -34,6 +36,8 @@ def _plot_results_compute_dataset_statistics(stats, filename):
     tval_heatmap_2 = tval_heatmap.iloc[1:, :-1].copy()
     vmin = -max(abs(tval_heatmap_2.min().min()), abs(tval_heatmap_2.max().max()))
     vmax = max(abs(tval_heatmap_2.min().min()), abs(tval_heatmap_2.max().max()))
+
+    sns.set ( font_scale=1.8 )
     with sns.axes_style("white"):
         f, ax = plt.subplots(figsize=(24, 18))
         ax = sns.heatmap(
@@ -50,13 +54,13 @@ def _plot_results_compute_dataset_statistics(stats, filename):
         )
         bottom, top = ax.get_ylim()
         ax.set_ylim(bottom + 0.6, top - 0.6)
-        ax.set_facecolor("white")
-        ax.xaxis.label.set_size(9)
-        ax.yaxis.label.set_size(9)
+        ax.set_facecolor("black")
+        # ax.xaxis.label.set_size(15)
+        # ax.yaxis.label.set_size(15)
         plt.savefig(filename + ".pdf", dpi=300)
 
 def _plot_rainclouds(
-    df_results, list_best, list_least, hue_order, path_figures_root, yticks_figure, filename,palette='colorblind'):
+    df_results, list_best, list_least, path_figures_root, filename,palette='colorblind'):
     plt.style.use("dark_background")
     ort = "h"
     pal = palette
@@ -64,13 +68,11 @@ def _plot_rainclouds(
     dx = "pipeline"
     dy = "score"
     dhue = "pipeline"
-    f, ax = plt.subplots(figsize=(24, 18))
+    f, ax = plt.subplots(figsize=(33, 33))
     ax = pt.RainCloud(
         x=dx,
         y=dy,
         hue=dhue,
-        hue_order=hue_order,
-        order=hue_order,
         data=df_results,
         palette=pal,
         bw=sigma,
@@ -83,25 +85,20 @@ def _plot_rainclouds(
         move=0.2,
     )
     ax.get_legend().remove()
-    ax.xaxis.label.set_size(9)
-    ax.yaxis.label.set_size(9)
     ax.spines["right"].set_visible(False)
     ax.spines["top"].set_visible(False)
-    plt.yticks(range(len(df_results["pipeline"].unique())),
-               yticks_figure, fontsize=30, rotation=90)
     plt.xticks(fontsize=36)
+    plt.yticks (fontsize=36 )
     plt.ylabel("Pipeline", fontsize=39)
     plt.xlabel("Score", fontsize=39)
     plt.savefig(path_figures_root + filename + ".pdf", dpi=300)
 
-    f, ax = plt.subplots(figsize=(24, 18))
+    f, ax = plt.subplots(figsize=(33, 33))
     df_results_best = df_results[df_results["subject"].isin(list_best)]
     ax = pt.RainCloud(
         x=dx,
         y=dy,
         hue=dhue,
-        hue_order=hue_order,
-        order=hue_order,
         data=df_results_best,
         palette=pal,
         bw=sigma,
@@ -114,25 +111,20 @@ def _plot_rainclouds(
         move=0.2,
     )
     ax.get_legend().remove()
-    ax.xaxis.label.set_size(9)
-    ax.yaxis.label.set_size(9)
     ax.spines["right"].set_visible(False)
     ax.spines["top"].set_visible(False)
-    plt.yticks(range(len(df_results_best["pipeline"].unique())),
-               yticks_figure, fontsize=30, rotation=90)
     plt.xticks(fontsize=36)
+    plt.yticks (fontsize=36 )
     plt.ylabel("Pipeline", fontsize=39)
     plt.xlabel("Score", fontsize=39)
     plt.savefig(path_figures_root + filename + "_best.pdf", dpi=300)
 
-    f, ax = plt.subplots(figsize=(24, 18))
+    f, ax = plt.subplots(figsize=(33, 33))
     df_results_least = df_results[df_results["subject"].isin(list_least)]
     ax = pt.RainCloud(
         x=dx,
         y=dy,
         hue=dhue,
-        hue_order=hue_order,
-        order=hue_order,
         data=df_results_least,
         palette=pal,
         bw=sigma,
@@ -145,33 +137,30 @@ def _plot_rainclouds(
         move=0.2,
     )
     ax.get_legend().remove()
-    ax.xaxis.label.set_size(9)
-    ax.yaxis.label.set_size(9)
     ax.spines["right"].set_visible(False)
     ax.spines["top"].set_visible(False)
-    plt.yticks(range(len(df_results_least["pipeline"].unique())),
-               yticks_figure, fontsize=30, rotation=90)
     plt.xticks(fontsize=36)
+    plt.yticks (fontsize=36 )
     plt.ylabel("Pipeline", fontsize=39)
     plt.xlabel("Score", fontsize=39)
     plt.savefig(path_figures_root + filename + "_least.pdf", dpi=300)
 
 ## dictionary that contains the colors associated to each case studied in the paper
-dict_colors={"RegCSP+shLDA":"#0072B2","CSP+optSVM":'#E69F00','FgMDM':'#F0E442','cov':'#009E73',
-            "ensemble-noDR_2":'#D55E00',
-            "ensemble-noDR_best":'#F5E4C9',
-            'ensemble-noDR_3':'#CC79A7',
-            'ensemble-noDR_4':'#F79EB4',
-             'ensemble-DR':"#85A6A3",
-            "instantaneous":"#576d64","imcoh":"#c4d5a8",
-            "plv":"#64405a","pli":"#9e7089","wpli2_debiased":"#ad96a9","aec":"#1E3F5A",
-            "delta": "#f16745",
-            "theta": "#ffc65d",
-            "alpha": "#7bc8A4",
-            "beta":  "#4cc3d9",
-            "gamma": "#93648d",
-            "defaultBand": "#404040",
-}
+dict_colors={ "RegCSP+shLDA":"#0072B2", "CSP+optSVM": '#B89ED5', 'FgMDM':'#314a93',
+              'cov': '#009E73',
+             "ensemble-noDR_2":'#1389E6',
+              "ensemble-noDR_best": "#BE4E4E",
+            'ensemble-noDR_3':'#F97738',
+            'ensemble-noDR_4': '#ffd02d',
+             "instantaneous":"#576d64", "imcoh":"#c4d5a8",
+             "plv":"#64405a" , "pli":"#9e7089", "wpli2_debiased":"#ad96a9","aec":"#3C648E",
+              "delta": "#f16745" ,
+              "theta": "#ffc65d" ,
+              "alpha": "#7bc8A4" ,
+              "beta": "#4cc3d9" ,
+              "gamma": "#93648d" ,
+              "defaultBand": "#F98790",
+              }
 
 ###################### PART 1 - Cho2017 dataset results ####################
 d = Cho2017()
@@ -207,7 +196,7 @@ all_res_temp = pd.concat((all_res_temp, results_pyr))
 
 list_FC_paper = [
     "pycohinst-EN",
-    "imcoh+elasticnet",  
+    "imcoh+elasticnet",
     "plv+elasticnet",
     "pli+elasticnet",
     "wpli2_debiased+elasticnet",
@@ -230,21 +219,21 @@ colors1 = [ dict_colors["instantaneous"] ,
 palette1= sns.color_palette(colors1)
 stats = compute_dataset_statistics(all_res_paper)
 filename = (
-    path_figures_root + "Cho2017_Opt_FC-metrics_statcomp_defaultBand_ToUse"
+    path_figures_root + "Cho2017_Opt_FC-metrics_statcomp_defaultBand"
 )
 _plot_results_compute_dataset_statistics(stats, filename)
 
 stats_best = compute_dataset_statistics(all_res_best_paper)
 filename = (
     path_figures_root
-    + "Cho2017_Opt_FC-metrics_statcomp_defaultBand_best_ToUse"
+    + "Cho2017_Opt_FC-metrics_statcomp_defaultBand_best"
 )
 _plot_results_compute_dataset_statistics(stats_best, filename)
 
 stats_least = compute_dataset_statistics(all_res_least_paper)
 filename = (
     path_figures_root
-    + "Cho2017_Opt_FC-metrics_statcomp_defaultBand_least_ToUse"
+    + "Cho2017_Opt_FC-metrics_statcomp_defaultBand_least"
 )
 _plot_results_compute_dataset_statistics(stats_least, filename)
 
@@ -253,7 +242,7 @@ _plot_results_compute_dataset_statistics(stats_least, filename)
 fc_tickslabels=['Instantaneous+EN',"ImCoh+EN","PLV+EN","PLI+EN","wPLI2-d+EN","AEC+EN"]
 
 # group level
-plt.style.use("classic")
+plt.style.use("dark_background")#("classic")
 f, ax = plt.subplots(figsize=(24, 24))
 ax = sns.catplot(
     data=all_res_paper,
@@ -273,7 +262,7 @@ plt.xlabel("Pipeline", fontsize=18)
 plt.ylabel("Score", fontsize=18)
 plt.savefig(
     path_figures_root
-    + "/all_res_single_pipelines_Cho2017_Pipeline_OptFCMetrics_defaultBand_group_ToUse.pdf",
+    + "/all_res_single_pipelines_Cho2017_Pipeline_OptFCMetrics_defaultBand_group.pdf",
     dpi=300,
 )
 
@@ -297,7 +286,7 @@ plt.xlabel("Pipeline", fontsize=18)
 plt.ylabel("Score", fontsize=18)
 plt.savefig(
     path_figures_root
-    + "/all_res_single_pipelines_Cho2017_Pipeline_OptFCMetrics_defaultBand_best_ToUse.pdf",
+    + "/all_res_single_pipelines_Cho2017_Pipeline_OptFCMetrics_defaultBand_best.pdf",
     dpi=300,
 )
 
@@ -320,7 +309,7 @@ plt.xlabel("Pipeline", fontsize=18)
 plt.ylabel("Score", fontsize=18)
 plt.savefig(
     path_figures_root
-    + "/all_res_single_pipelines_Cho2017_Pipeline_OptFCMetrics_defaultBand_least_ToUse.pdf",
+    + "/all_res_single_pipelines_Cho2017_Pipeline_OptFCMetrics_defaultBand_least.pdf",
     dpi=300,
 )
 
@@ -352,9 +341,9 @@ results_freqBand = results_freqBand_temp[
 ]
 
 
-plt.style.use("classic")
+plt.style.use("dark_background")#("classic")
 # Initialize the figure
-f, ax = plt.subplots(figsize=(24, 15))
+f, ax = plt.subplots(figsize=(24, 24))
 sns.despine(bottom=True, left=True)
 # Show each observation with a scatterplot
 sns.stripplot(
@@ -391,19 +380,18 @@ ax.legend(
     loc="upper right",
     ncol=1,
     frameon=False,
-    bbox_to_anchor=(1.11, 0.5),
-    fontsize=21,
+    bbox_to_anchor=(1.02, 0.5),
+    fontsize=24,
+
 )
 
 plt.xlim((0.3,1))
-plt.yticks(range(len(results_freqBand["pipeline"].unique())),
-           fc_tickslabels)
 plt.yticks(fontsize=18)
-plt.xticks(fontsize=18)
-plt.xlabel("Pipeline", fontsize=18)
-plt.ylabel("Score", fontsize=18)
+plt.xticks(fontsize=30)
+plt.ylabel("Pipeline", fontsize=30)
+plt.xlabel("Score", fontsize=30)
 plt.savefig(
-    path_figures_root + "/Cho2017_Opt_FreqBand_plot.pdf", dpi=300
+    path_figures_root + "/Cho2017_Opt_FreqBand.pdf", dpi=300
 )
 
 ## Pipeline optimization and ensemble
@@ -456,7 +444,6 @@ g = sns.catplot(
     y="score",
     kind="bar",
     palette=palette3,
-    saturation=0.5,
     order=list_fc_ens,
     height=7,
     aspect=4,
@@ -477,6 +464,7 @@ plt.savefig(
 results_ensemble_base_ens = results_ensemble[
     results_ensemble["pipeline"].isin(list_base_ens)
 ]
+results_ensemble_base_ens=results_ensemble_base_ens.replace('ensemble-noDR_best', 'FUCONE')
 
 # plots FUCONE vs state-of-the-art
 g = sns.catplot(
@@ -485,16 +473,13 @@ g = sns.catplot(
     y="score",
     kind="bar",
     palette=palette4,
-    saturation=0.5,
-    order=list_base_ens,
     height=4.3,
     aspect=2,
 )
 ax.spines["right"].set_visible(False)
 ax.spines["top"].set_visible(False)
 plt.ylim((0.4, 1))
-plt.xticks(range(len(results_ensemble_base_ens["pipeline"].unique())),
-           base_ens_tickslabels, fontsize=12)
+plt.xticks(fontsize=15)
 plt.yticks(fontsize=15)
 plt.xlabel("Pipeline", fontsize=12)
 plt.ylabel("Score", fontsize=12)
@@ -508,9 +493,7 @@ _plot_rainclouds(
     results_ensemble_base_ens,
     list_best,
     list_least,
-    list_base_ens,
     path_figures_root,
-    base_ens_tickslabels,
     filename,
     palette4
 )

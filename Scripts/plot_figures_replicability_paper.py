@@ -15,6 +15,8 @@ import os
 
 if os.path.basename(os.getcwd()) == "FUCONE":
     os.chdir("Database")
+if os.path.basename(os.getcwd()) == "Scripts":
+    os.chdir("../Database")
 basedir = os.getcwd()
 
 ## specific functions
@@ -89,21 +91,21 @@ def _plot_rainclouds(df_results, hue_order, path_figures_root, title, filename):
     plt.savefig(path_figures_root + filename + "_WithinSession.pdf", dpi=300)
 
 ## dictionary that contains the colors associated to each case studied in the paper
-dict_colors={"RegCSP+shLDA":"#0072B2","CSP+optSVM":'#E69F00','FgMDM':'#F0E442','cov':'#009E73',
-            "ensemble-noDR_2":'#D55E00',
-            "ensemble-noDR_best":'#F5E4C9',
-            'ensemble-noDR_3':'#CC79A7',
-            'ensemble-noDR_4':'#F79EB4',
-             'ensemble-DR':"#85A6A3",
-            "instantaneous":"#576d64","imcoh":"#c4d5a8",
-            "plv":"#64405a","pli":"#9e7089","wpli2_debiased":"#ad96a9","aec":"#1E3F5A",
-            "delta": "#f16745",
-            "theta": "#ffc65d",
-            "alpha": "#7bc8A4",
-            "beta":  "#4cc3d9",
-            "gamma": "#93648d",
-            "defaultBand": "#404040",
-}
+dict_colors={ "RegCSP+shLDA":"#0072B2", "CSP+optSVM": '#B89ED5', 'FgMDM':'#314a93',
+              'cov': '#009E73',
+             "ensemble-noDR_2":'#1389E6',
+              "ensemble-noDR_best": "#BE4E4E",
+            'ensemble-noDR_3':'#F97738',
+            'ensemble-noDR_4': '#ffd02d',
+             "instantaneous":"#576d64", "imcoh":"#c4d5a8",
+             "plv":"#64405a" , "pli":"#9e7089", "wpli2_debiased":"#ad96a9","aec":"#3C648E",
+              "delta": "#f16745" ,
+              "theta": "#ffc65d" ,
+              "alpha": "#7bc8A4" ,
+              "beta": "#4cc3d9" ,
+              "gamma": "#93648d" ,
+              "defaultBand": "#F98790",
+              }
 
 list_ppl = [
     "RegCSP+shLDA",
@@ -429,7 +431,7 @@ plt.xlabel("Dataset", fontsize=15)
 plt.ylabel("Score", fontsize=15)
 plt.savefig(
     path_figures_root
-    + "Meta_WithinSession/section_Res_2_Meta_Swarmplot_2class_rf_AllDatasets_WithinSession_ToUse.pdf",
+    + "Meta_WithinSession/section_Res_2_Meta_Swarmplot_2class_rf_AllDatasets_WithinSession.pdf",
     dpi=300,
 )
 
@@ -459,7 +461,7 @@ plt.xlabel("Dataset", fontsize=15)
 plt.ylabel("Score", fontsize=15)
 plt.savefig(
     path_figures_root
-    + "Meta_WithinSession/section_Res_2_Meta_Swarmplot_2class_lhrh_AllDatasets_WithinSession_ToUse.pdf",
+    + "Meta_WithinSession/section_Res_2_Meta_Swarmplot_2class_lhrh_AllDatasets_WithinSession.pdf",
     dpi=300,
 )
 
@@ -489,7 +491,7 @@ plt.xlabel("Dataset", fontsize=15)
 plt.ylabel("Score", fontsize=15)
 plt.savefig(
     path_figures_root
-    + "Meta_WithinSession/section_Res_2_Meta_Swarmplot_3class_AllDatasets_WithinSession_ToUse.pdf",
+    + "Meta_WithinSession/section_Res_2_Meta_Swarmplot_3class_AllDatasets_WithinSession.pdf",
     dpi=300,
 )
 
@@ -519,7 +521,7 @@ plt.xlabel("Dataset", fontsize=15)
 plt.ylabel("Score", fontsize=15)
 plt.savefig(
     path_figures_root
-    + "Meta_WithinSession/section_Res_2_Meta_Swarmplot_multclass_AllDatasets_WithinSession_ToUse.pdf",
+    + "Meta_WithinSession/section_Res_2_Meta_Swarmplot_multclass_AllDatasets_WithinSession.pdf",
     dpi=300,
 )
 
@@ -669,7 +671,7 @@ plt.xlabel("Dataset", fontsize=15)
 plt.ylabel("Score", fontsize=15)
 plt.savefig(
     path_figures_root
-    + "Meta_CrossSession/section_Res_2_Meta_Swarmplot_2class_rf_AllDatasets_CrossSession_ToUse.pdf",
+    + "Meta_CrossSession/section_Res_2_Meta_Swarmplot_2class_rf_AllDatasets_CrossSession.pdf",
     dpi=300,
 )
 
@@ -699,7 +701,7 @@ plt.xlabel("Dataset", fontsize=15)
 plt.ylabel("Score", fontsize=15)
 plt.savefig(
     path_figures_root
-    + "Meta_CrossSession/section_Res_2_Meta_Swarmplot_2class_lhrh_AllDatasets_CrossSession_ToUse.pdf",
+    + "Meta_CrossSession/section_Res_2_Meta_Swarmplot_2class_lhrh_AllDatasets_CrossSession.pdf",
     dpi=300,
 )
 
