@@ -89,9 +89,9 @@ def _plot_rainclouds(
     ax.spines["top"].set_visible(False)
     plt.yticks(range(len(df_results["pipeline"].unique())),
                yticks_figure, fontsize=30, rotation=90)
-    plt.xticks(fontsize=36)
+    plt.xticks(fontsize=51)
     plt.ylabel("Pipeline", fontsize=39)
-    plt.xlabel("Score", fontsize=39)
+    plt.xlabel("Score", fontsize=51)
     plt.savefig(path_figures_root + filename + ".pdf", dpi=300)
 
     f, ax = plt.subplots(figsize=(24, 18))
@@ -120,9 +120,9 @@ def _plot_rainclouds(
     ax.spines["top"].set_visible(False)
     plt.yticks(range(len(df_results_best["pipeline"].unique())),
                yticks_figure, fontsize=30, rotation=90)
-    plt.xticks(fontsize=36)
+    plt.xticks(fontsize=51)
     plt.ylabel("Pipeline", fontsize=39)
-    plt.xlabel("Score", fontsize=39)
+    plt.xlabel("Score", fontsize=51)
     plt.savefig(path_figures_root + filename + "_best.pdf", dpi=300)
 
     f, ax = plt.subplots(figsize=(24, 18))
@@ -151,20 +151,27 @@ def _plot_rainclouds(
     ax.spines["top"].set_visible(False)
     plt.yticks(range(len(df_results_least["pipeline"].unique())),
                yticks_figure, fontsize=30, rotation=90)
-    plt.xticks(fontsize=36)
-    plt.ylabel("Pipeline", fontsize=39)
-    plt.xlabel("Score", fontsize=39)
+    plt.xticks(fontsize=51)
+    plt.ylabel("Pipeline", fontsize=30)
+    plt.xlabel("Score", fontsize=51)
     plt.savefig(path_figures_root + filename + "_least.pdf", dpi=300)
 
 ## dictionary that contains the colors associated to each case studied in the paper
-dict_colors={"RegCSP+shLDA":"#0072B2","CSP+optSVM":'#E69F00','FgMDM':'#F0E442','cov':'#009E73',
-            "ensemble-noDR_2":'#D55E00',
-            "ensemble-noDR_best":'#F5E4C9',
-            'ensemble-noDR_3':'#CC79A7',
-            'ensemble-noDR_4':'#F79EB4',
-             'ensemble-DR':"#85A6A3",
-            "instantaneous":"#576d64","imcoh":"#c4d5a8",
-            "plv":"#64405a","pli":"#9e7089","wpli2_debiased":"#ad96a9","aec":"#1E3F5A",
+# dict_colors={"RegCSP+shLDA":"#0072B2","CSP+optSVM":'#E69F00','FgMDM':'#F0E442','cov':'#009E73',
+#             "ensemble-noDR_2":'#D55E00',
+#             "ensemble-noDR_best":'#F5E4C9',
+#             'ensemble-noDR_3':'#CC79A7',
+#             'ensemble-noDR_4':'#F79EB4',
+#              'ensemble-DR':"#85A6A3",
+#             "instantaneous":"#576d64","imcoh":"#c4d5a8",
+#             "plv":"#64405a","pli":"#9e7089","wpli2_debiased":"#ad96a9","aec":"#1E3F5A",
+dict_colors={"RegCSP+shLDA":"#0072B2","CSP+optSVM":'#B89ED5','FgMDM':'#1E2D5A','cov':'#009E73',
+             "ensemble-noDR_2":'#1389E6',
+             "ensemble-noDR_best":"#BE4E4E",#'#D1444A',
+             'ensemble-noDR_3':'#F97738',
+             'ensemble-noDR_4':'#ffd02d',
+             "instantaneous":"#576d64","imcoh":"#c4d5a8",
+             "plv":"#64405a","pli":"#9e7089","wpli2_debiased":"#ad96a9","aec":"#3C648E",
             "delta": "#f16745",
             "theta": "#ffc65d",
             "alpha": "#7bc8A4",
@@ -324,6 +331,7 @@ plt.savefig(
     dpi=300,
 )
 
+plt.close('all')
 ## Frequency bands
 spectral_met = [
     "instantaneous+elasticnet",
@@ -405,7 +413,7 @@ plt.ylabel("Score", fontsize=18)
 plt.savefig(
     path_figures_root + "/Cho2017_Opt_FreqBand_plot.pdf", dpi=300
 )
-
+plt.close('all')
 ## Pipeline optimization and ensemble
 results_ensemble = pd.read_csv(
     path_csv_root + "OptEnsemble-DRnoDR-allsubject-memory_exhaustive_paper.csv"
@@ -430,15 +438,17 @@ fc_ens_tickslabels=['{Cov,Instant.,ImCoh}',
                     "Cov","Instantaneous", "ImCoh", "PLV", "wPLI2-d" ]
 palette3= sns.color_palette(colors_fc_ens)
 
-list_base_ens=['RegCSP+shLDA', 'CSP+optSVM', 'FgMDM', 'ensemble-noDR_best']
+list_base_ens=['RegCSP+shLDA', 'CSP+optSVM', 'FgMDM', 'cov+elasticnet', 'ensemble-noDR_best']
 colors_base_ens=[dict_colors['RegCSP+shLDA'],
                dict_colors['CSP+optSVM'],
                dict_colors['FgMDM'],
+               dict_colors['cov'],
                dict_colors['ensemble-noDR_best']
                ]
 base_ens_tickslabels=['RegCSP+shLDA',
                     'CSP+optSVM',
                     'FgMDM',
+                    'Cov+EN',
                     'FUCONE'
                     ]
 palette4= sns.color_palette(colors_base_ens)
@@ -456,7 +466,7 @@ g = sns.catplot(
     y="score",
     kind="bar",
     palette=palette3,
-    saturation=0.5,
+    #saturation=0.5,
     order=list_fc_ens,
     height=7,
     aspect=4,
@@ -485,7 +495,7 @@ g = sns.catplot(
     y="score",
     kind="bar",
     palette=palette4,
-    saturation=0.5,
+    #saturation=0.5,
     order=list_base_ens,
     height=4.3,
     aspect=2,
@@ -503,6 +513,13 @@ plt.savefig(
     dpi=300,
 )
 
+# stats = compute_dataset_statistics(results_ensemble_base_ens)
+# P, T = find_significant_differences(stats)
+# columns = stats["pipe1"].unique()
+# rows = stats["pipe2"].unique()
+# pval_heatmap = pd.DataFrame(columns=columns, index=rows, data=P)
+
+
 filename = "/Opt_Ensemble_paper_Cho2017_raincloud_Group_base_ens"
 _plot_rainclouds(
     results_ensemble_base_ens,
@@ -514,3 +531,5 @@ _plot_rainclouds(
     filename,
     palette4
 )
+plt.close('all')
+##

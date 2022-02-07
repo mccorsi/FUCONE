@@ -88,15 +88,66 @@ def _plot_rainclouds(df_results, hue_order, path_figures_root, title, filename):
     plt.xlim((0, 1))  # to have always the same scale
     plt.savefig(path_figures_root + filename + "_WithinSession.pdf", dpi=300)
 
+
+def _plot_results_compute_dataset_meta_analysis_statistics(stats, filename):
+    P, T = find_significant_differences(stats)
+
+
+    columns = stats["pipe1"].unique()
+    rows = stats["pipe2"].unique()
+    #data = np.array(stats["p"]).reshape((len(rows), len(rows)))
+    pval_heatmap = pd.DataFrame(columns=columns, index=rows, data=P)
+    #tval_heatmap = pd.DataFrame(columns=columns, index=rows, data=T)
+
+    mask = np.invert(np.tril(pval_heatmap < 0.05))
+    mask = mask[1:, :-1]
+    pval_heatmap_2 = pval_heatmap.iloc[1:, :-1].copy()
+    vmin = 0
+    vmax = 0.05
+    with sns.axes_style("dark"):
+        sns.set(font_scale=3)
+        plt.style.use("dark_background")
+        f, ax = plt.subplots(figsize=(24, 18))
+        ax = sns.heatmap(
+            pval_heatmap_2,
+            mask=mask,
+            annot=True,
+            fmt=".3g",
+            cmap="rocket_r",
+            linewidths=1,
+            vmin=vmin,
+            vmax=vmax,
+            cbar_kws={"label": "Significant meta-analysis effect (p-values)"},
+        )
+
+        ax.set_facecolor("black")
+        # ax.set_xticklabels(ax.get_xmajorticklabels(), fontsize = 30)
+        # ax.set_yticklabels(ax.get_ymajorticklabels(), fontsize=30)
+        plt.savefig(filename + ".pdf", facecolor=ax.get_facecolor(), edgecolor='none', dpi=300)
+
 ## dictionary that contains the colors associated to each case studied in the paper
-dict_colors={"RegCSP+shLDA":"#0072B2","CSP+optSVM":'#E69F00','FgMDM':'#F0E442','cov':'#009E73',
-            "ensemble-noDR_2":'#D55E00',
-            "ensemble-noDR_best":'#F5E4C9',
-            'ensemble-noDR_3':'#CC79A7',
-            'ensemble-noDR_4':'#F79EB4',
-             'ensemble-DR':"#85A6A3",
-            "instantaneous":"#576d64","imcoh":"#c4d5a8",
-            "plv":"#64405a","pli":"#9e7089","wpli2_debiased":"#ad96a9","aec":"#1E3F5A",
+# dict_colors={"RegCSP+shLDA":"#0072B2","CSP+optSVM":'#E69F00','FgMDM':'#F0E442','cov':'#009E73',
+#             "ensemble-noDR_2":'#D55E00',
+#             "ensemble-noDR_best":'#F5E4C9',
+#             'ensemble-noDR_3':'#CC79A7',
+#             'ensemble-noDR_4':'#F79EB4',
+#              'ensemble-DR':"#85A6A3",
+#             "instantaneous":"#576d64","imcoh":"#c4d5a8",
+#             "plv":"#64405a","pli":"#9e7089","wpli2_debiased":"#ad96a9","aec":"#1E3F5A",
+#             "delta": "#f16745",
+#             "theta": "#ffc65d",
+#             "alpha": "#7bc8A4",
+#             "beta":  "#4cc3d9",
+#             "gamma": "#93648d",
+#             "defaultBand": "#404040",
+# }
+dict_colors={"RegCSP+shLDA":"#0072B2","CSP+optSVM":'#B89ED5','FgMDM':'#1E2D5A','cov':'#009E73',
+             "ensemble-noDR_2":'#1389E6',
+             "ensemble-noDR_best":"#BE4E4E",#'#D1444A',
+             'ensemble-noDR_3':'#F97738',
+             'ensemble-noDR_4':'#ffd02d',
+             "instantaneous":"#576d64","imcoh":"#c4d5a8",
+             "plv":"#64405a","pli":"#9e7089","wpli2_debiased":"#ad96a9","aec":"#3C648E",
             "delta": "#f16745",
             "theta": "#ffc65d",
             "alpha": "#7bc8A4",
@@ -300,12 +351,13 @@ list_2cl_lhrh = [
     "Schirrmeister2017-2class_lhrh",
 ]
 
+
 results_meta_2class = results_meta[results_meta["dataset"].isin(list_2cl)]
-stats = compute_dataset_statistics(results_meta_2class)
+stats_2class = compute_dataset_statistics(results_meta_2class)
 for i, pip1 in enumerate(results_meta_2class["pipeline"].unique()):
     for k, pip2 in enumerate(results_meta_2class["pipeline"].unique()):
         if pip1 != pip2 and i > k:
-            moabb_plt.meta_analysis_plot(stats, pip1, pip2)
+            moabb_plt.meta_analysis_plot(stats_2class, pip1, pip2)
             plt.savefig(
                 path_figures_root
                 + "Meta_WithinSession/"
@@ -318,11 +370,11 @@ for i, pip1 in enumerate(results_meta_2class["pipeline"].unique()):
             )
 # stats, 2 classes, rf
 results_meta_2class_rf = results_meta[results_meta["dataset"].isin(list_2cl_rf)]
-stats = compute_dataset_statistics(results_meta_2class_rf)
+stats_meta_2class_rf = compute_dataset_statistics(results_meta_2class_rf)
 for i, pip1 in enumerate(results_meta_2class_rf["pipeline"].unique()):
     for k, pip2 in enumerate(results_meta_2class_rf["pipeline"].unique()):
         if pip1 != pip2 and i > k:
-            moabb_plt.meta_analysis_plot(stats, pip1, pip2)
+            moabb_plt.meta_analysis_plot(stats_meta_2class_rf, pip1, pip2)
             plt.savefig(
                 path_figures_root
                 + "Meta_WithinSession/"
@@ -335,11 +387,11 @@ for i, pip1 in enumerate(results_meta_2class_rf["pipeline"].unique()):
             )
 # stats, 2 classes, lhrh
 results_meta_2class_lhrh = results_meta[results_meta["dataset"].isin(list_2cl_lhrh)]
-stats = compute_dataset_statistics(results_meta_2class_lhrh)
+stats_meta_2class_lhrh = compute_dataset_statistics(results_meta_2class_lhrh)
 for i, pip1 in enumerate(results_meta_2class_lhrh["pipeline"].unique()):
     for k, pip2 in enumerate(results_meta_2class_lhrh["pipeline"].unique()):
         if pip1 != pip2 and i > k:
-            moabb_plt.meta_analysis_plot(stats, pip1, pip2)
+            moabb_plt.meta_analysis_plot(stats_meta_2class_lhrh, pip1, pip2)
             plt.savefig(
                 path_figures_root
                 + "Meta_WithinSession/"
@@ -357,11 +409,11 @@ list_3cl = [
     "Zhou-2016-3classes",
 ]
 results_meta_3class = results_meta[results_meta["dataset"].isin(list_3cl)]
-stats = compute_dataset_statistics(results_meta_3class)
+stats_meta_3class = compute_dataset_statistics(results_meta_3class)
 for i, pip1 in enumerate(results_meta_3class["pipeline"].unique()):
     for k, pip2 in enumerate(results_meta_3class["pipeline"].unique()):
         if pip1 != pip2 and i > k:
-            moabb_plt.meta_analysis_plot(stats, pip1, pip2)
+            moabb_plt.meta_analysis_plot(stats_meta_3class, pip1, pip2)
             plt.savefig(
                 path_figures_root
                 + "Meta_WithinSession/"
@@ -379,11 +431,11 @@ list_mult = [
     "Schirrmeister2017-multclasses"
 ]
 results_meta_mult = results_meta[results_meta["dataset"].isin(list_mult)]
-stats = compute_dataset_statistics(results_meta_mult)
+stats_meta_mult = compute_dataset_statistics(results_meta_mult)
 for i, pip1 in enumerate(results_meta_mult["pipeline"].unique()):
     for k, pip2 in enumerate(results_meta_mult["pipeline"].unique()):
         if pip1 != pip2 and i > k:
-            moabb_plt.meta_analysis_plot(stats, pip1, pip2)
+            moabb_plt.meta_analysis_plot(stats_meta_mult, pip1, pip2)
             plt.savefig(
                 path_figures_root
                 + "Meta_WithinSession/"
@@ -396,7 +448,7 @@ for i, pip1 in enumerate(results_meta_mult["pipeline"].unique()):
             )
 
 
-# plot performance distribution over the subjects for each dataset and each pipeline
+# plot performance distribution over the subjects for each dataset and each pipeline + add barplots
 palette_meta=sns.color_palette([dict_colors["RegCSP+shLDA"],
                            dict_colors["CSP+optSVM"],
                            dict_colors["FgMDM"],
@@ -430,6 +482,37 @@ plt.ylabel("Score", fontsize=15)
 plt.savefig(
     path_figures_root
     + "Meta_WithinSession/section_Res_2_Meta_Swarmplot_2class_rf_AllDatasets_WithinSession_ToUse.pdf",
+    dpi=300,
+)
+
+
+plt.style.use("dark_background")
+sns.catplot(
+    x="dataset",
+    y="score",
+    hue="pipeline",
+    hue_order=[
+        "RegCSP+shLDA",
+        "CSP+optSVM",
+        "FgMDM",
+        "Cov+EN",
+        "FUCONE",
+    ],
+    data=results_meta_2class_rf,
+    kind="bar",
+    height=4.2,
+    aspect=3,
+    dodge=True,
+    palette=palette_meta,
+)
+plt.ylim((0.5, 1))
+plt.yticks(fontsize=13)
+plt.xticks(fontsize=13)
+plt.xlabel("Dataset", fontsize=15)
+plt.ylabel("Score", fontsize=15)
+plt.savefig(
+    path_figures_root
+    + "Meta_WithinSession/section_Res_2_Meta_Barplot_2class_rf_AllDatasets_WithinSession_ToUse.pdf",
     dpi=300,
 )
 
@@ -475,6 +558,36 @@ sns.catplot(
         "Cov+EN",
         "FUCONE",
     ],
+    data=results_meta_2class_lhrh,
+    kind="bar",
+    height=4.2,
+    aspect=3,
+    dodge=True,
+    palette=palette_meta,
+)
+plt.ylim((0.5, 1))
+plt.yticks(fontsize=13)
+plt.xticks(fontsize=13)
+plt.xlabel("Dataset", fontsize=15)
+plt.ylabel("Score", fontsize=15)
+plt.savefig(
+    path_figures_root
+    + "Meta_WithinSession/section_Res_2_Meta_Barplot_2class_lhrh_AllDatasets_WithinSession_ToUse.pdf",
+    dpi=300,
+)
+
+plt.style.use("dark_background")
+sns.catplot(
+    x="dataset",
+    y="score",
+    hue="pipeline",
+    hue_order=[
+        "RegCSP+shLDA",
+        "CSP+optSVM",
+        "FgMDM",
+        "Cov+EN",
+        "FUCONE",
+    ],
     data=results_meta_3class,
     kind="swarm",
     height=4.2,
@@ -490,6 +603,36 @@ plt.ylabel("Score", fontsize=15)
 plt.savefig(
     path_figures_root
     + "Meta_WithinSession/section_Res_2_Meta_Swarmplot_3class_AllDatasets_WithinSession_ToUse.pdf",
+    dpi=300,
+)
+
+plt.style.use("dark_background")
+sns.catplot(
+    x="dataset",
+    y="score",
+    hue="pipeline",
+    hue_order=[
+        "RegCSP+shLDA",
+        "CSP+optSVM",
+        "FgMDM",
+        "Cov+EN",
+        "FUCONE",
+    ],
+    data=results_meta_3class,
+    kind="bar",
+    height=4.2,
+    aspect=1.8,
+    dodge=True,
+    palette=palette_meta,
+)
+plt.ylim((0.5, 1))
+plt.yticks(fontsize=13)
+plt.xticks(fontsize=13)
+plt.xlabel("Dataset", fontsize=15)
+plt.ylabel("Score", fontsize=15)
+plt.savefig(
+    path_figures_root
+    + "Meta_WithinSession/section_Res_2_Meta_Barplot_3class_AllDatasets_WithinSession_ToUse.pdf",
     dpi=300,
 )
 
@@ -523,6 +666,38 @@ plt.savefig(
     dpi=300,
 )
 
+
+plt.style.use("dark_background")
+sns.catplot(
+    x="dataset",
+    y="score",
+    hue="pipeline",
+    hue_order=[
+        "RegCSP+shLDA",
+        "CSP+optSVM",
+        "FgMDM",
+        "Cov+EN",
+        "FUCONE",
+    ],
+    data=results_meta_mult,
+    kind="bar",
+    height=4.2,
+    aspect=1.8,
+    dodge=True,
+    palette=palette_meta,
+)
+plt.ylim((0.5, 1))
+plt.yticks(fontsize=13)
+plt.xticks(fontsize=13)
+plt.xlabel("Dataset", fontsize=15)
+plt.ylabel("Score", fontsize=15)
+plt.savefig(
+    path_figures_root
+    + "Meta_WithinSession/section_Res_2_Meta_Barplot_multclass_AllDatasets_WithinSession_ToUse.pdf",
+    dpi=300,
+)
+
+plt.close('all')
 ## Replicability - Cross-session evaluation
 
 # 001-2014
@@ -607,11 +782,11 @@ results_meta["pipeline"]=results_meta["pipeline"].replace("cov+elasticnet", "Cov
 list_2cl_lh_rh=[ "001-2014-2classes_lh_rh",  "004-2014-2classes_lh_rh", "Zhou-2016-2classes_lh_rh"]
 results_meta_lh_rh = results_meta[results_meta["dataset"].isin(list_2cl_lh_rh)]
 
-stats = compute_dataset_statistics(results_meta_lh_rh)
+stats_cross_meta_lh_rh = compute_dataset_statistics(results_meta_lh_rh)
 for i, pip1 in enumerate(results_meta_lh_rh["pipeline"].unique()):
     for k, pip2 in enumerate(results_meta_lh_rh["pipeline"].unique()):
         if pip1 != pip2 and i > k:
-            moabb_plt.meta_analysis_plot(stats, pip1, pip2)
+            moabb_plt.meta_analysis_plot(stats_cross_meta_lh_rh, pip1, pip2)
             plt.savefig(
                 path_figures_root
                 + "Meta_CrossSession/"
@@ -626,11 +801,11 @@ for i, pip1 in enumerate(results_meta_lh_rh["pipeline"].unique()):
 list_2cl_rh_f=[ "001-2014-2classes_rh_f", "001-2015-2classes_rh_f", "Zhou-2016-2classes_rh_f"]
 results_meta_rh_f = results_meta[results_meta["dataset"].isin(list_2cl_rh_f)]
 
-stats = compute_dataset_statistics(results_meta_rh_f)
+stats_cross_meta_rh_f = compute_dataset_statistics(results_meta_rh_f)
 for i, pip1 in enumerate(results_meta_rh_f["pipeline"].unique()):
     for k, pip2 in enumerate(results_meta_rh_f["pipeline"].unique()):
         if pip1 != pip2 and i > k:
-            moabb_plt.meta_analysis_plot(stats, pip1, pip2)
+            moabb_plt.meta_analysis_plot(stats_cross_meta_rh_f, pip1, pip2)
             plt.savefig(
                 path_figures_root
                 + "Meta_CrossSession/"
@@ -685,6 +860,36 @@ sns.catplot(
         "Cov+EN",
         "FUCONE",
     ],
+    data=results_meta_rh_f,
+    kind="bar",
+    height=4.2,
+    aspect=1.8,
+    dodge=True,
+    palette=palette_meta,
+)
+plt.ylim((0.5, 1))
+plt.yticks(fontsize=12)
+plt.xticks(fontsize=12)
+plt.xlabel("Dataset", fontsize=15)
+plt.ylabel("Score", fontsize=15)
+plt.savefig(
+    path_figures_root
+    + "Meta_CrossSession/section_Res_2_Meta_Barplot_2class_rf_AllDatasets_CrossSession_ToUse.pdf",
+    dpi=300,
+)
+
+plt.style.use("dark_background")
+sns.catplot(
+    x="dataset",
+    y="score",
+    hue="pipeline",
+    hue_order=[
+        "RegCSP+shLDA",
+        "CSP+optSVM",
+        "FgMDM",
+        "Cov+EN",
+        "FUCONE",
+    ],
     data=results_meta_lh_rh,
     kind="swarm",
     height=4.2,
@@ -703,4 +908,56 @@ plt.savefig(
     dpi=300,
 )
 
+plt.style.use("dark_background")
+sns.catplot(
+    x="dataset",
+    y="score",
+    hue="pipeline",
+    hue_order=[
+        "RegCSP+shLDA",
+        "CSP+optSVM",
+        "FgMDM",
+        "Cov+EN",
+        "FUCONE",
+    ],
+    data=results_meta_lh_rh,
+    kind="bar",
+    height=4.2,
+    aspect=1.8,
+    dodge=True,
+    palette=palette_meta
+)
+plt.ylim((0.5, 1))
+plt.yticks(fontsize=12)
+plt.xticks(fontsize=12)
+plt.xlabel("Dataset", fontsize=15)
+plt.ylabel("Score", fontsize=15)
+plt.savefig(
+    path_figures_root
+    + "Meta_CrossSession/section_Res_2_Meta_Barplot_2class_lhrh_AllDatasets_CrossSession_ToUse.pdf",
+    dpi=300,
+)
+plt.close('all')
+## Additional figures for SI - revised mansucript - meta-analysis only
+
+filename=path_figures_root + "/Meta_WithinSession/MetaAnalysis_Heatmap_stats_meta_2class_lhrh"
+_plot_results_compute_dataset_meta_analysis_statistics(stats_meta_2class_lhrh, filename)
+
+filename=path_figures_root + "/Meta_WithinSession/MetaAnalysis_Heatmap_stats_meta_2class_rf"
+_plot_results_compute_dataset_meta_analysis_statistics(stats_meta_2class_rf, filename)
+
+filename=path_figures_root + "/Meta_WithinSession/MetaAnalysis_Heatmap_stats_meta_3class"
+_plot_results_compute_dataset_meta_analysis_statistics(stats_meta_3class, filename)
+
+filename=path_figures_root + "/Meta_WithinSession/MetaAnalysis_Heatmap_stats_meta_mult"
+_plot_results_compute_dataset_meta_analysis_statistics(stats_meta_mult, filename)
+
+filename=path_figures_root + "/Meta_CrossSession/MetaAnalysis_Heatmap_stats_meta_2class_lhrh"
+_plot_results_compute_dataset_meta_analysis_statistics(stats_meta_2class_lhrh, filename)
+
+filename=path_figures_root + "/Meta_CrossSession/MetaAnalysis_Heatmap_stats_meta_2class_rf"
+_plot_results_compute_dataset_meta_analysis_statistics(stats_meta_2class_rf, filename)
+
+plt.close('all')
+##
 
