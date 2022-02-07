@@ -1,0 +1,15 @@
+,diversity,feature,FP+FN,nb_trials,subj
+0,0.0,cov,28,144,S9-sess0
+1,50.0,imcoh,28,144,S9-sess0
+2,25.0,instantaneous,28,144,S9-sess0
+3,50.0,plv,28,144,S9-sess0
+4,60.71428571428571,wpli2_debiased,28,144,S9-sess0
+5,53.57142857142857,pli,28,144,S9-sess0
+6,35.714285714285715,aec,28,144,S9-sess0
+7,0.0,cov,34,144,S9-sess1
+8,50.0,imcoh,34,144,S9-sess1
+9,26.47058823529412,instantaneous,34,144,S9-sess1
+10,52.94117647058824,plv,34,144,S9-sess1
+11,47.05882352941176,wpli2_debiased,34,144,S9-sess1
+12,58.82352941176471,pli,34,144,S9-sess1
+13,41.17647058823529,aec,34,144,S9-sess1

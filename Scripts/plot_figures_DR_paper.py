@@ -20,6 +20,8 @@ from collections import Counter
 
 if os.path.basename(os.getcwd()) == "FUCONE":
     os.chdir("Database")
+if os.path.basename(os.getcwd()) == "Scripts":
+    os.chdir("../Database")
 basedir = os.getcwd()
 
 ## specific functions
@@ -198,21 +200,21 @@ def _plot_topo_features_clin(path_figures_root, dataset, df_res_chan):
         plt.savefig(save_pic_path, dpi=300)
 
 ## dictionary that contains the colors associated to each case studied in the paper
-dict_colors={"RegCSP+shLDA":"#0072B2","CSP+optSVM":'#E69F00','FgMDM':'#F0E442','cov':'#009E73',
-            "ensemble-noDR_2":'#D55E00',
-            "ensemble-noDR_best":'#F5E4C9',
-            'ensemble-noDR_3':'#CC79A7',
-            'ensemble-noDR_4':'#F79EB4',
-            'ensemble-DR':"#85A6A3",
-            "instantaneous":"#576d64","imcoh":"#c4d5a8",
-            "plv":"#64405a","pli":"#9e7089","wpli2_debiased":"#ad96a9","aec":"#1E3F5A",
-            "delta": "#f16745",
-            "theta": "#ffc65d",
-            "alpha": "#7bc8A4",
-            "beta":  "#4cc3d9",
-            "gamma": "#93648d",
-            "defaultBand": "#404040",
-}
+dict_colors={ "RegCSP+shLDA":"#0072B2", "CSP+optSVM": '#B89ED5', 'FgMDM':'#314a93',
+              'cov': '#009E73',
+             "ensemble-noDR_2":'#1389E6',
+              "ensemble-noDR_best": "#BE4E4E",
+            'ensemble-noDR_3':'#F97738',
+            'ensemble-noDR_4': '#ffd02d',
+             "instantaneous":"#576d64", "imcoh":"#c4d5a8",
+             "plv":"#64405a" , "pli":"#9e7089", "wpli2_debiased":"#ad96a9","aec":"#3C648E",
+              "delta": "#f16745" ,
+              "theta": "#ffc65d" ,
+              "alpha": "#7bc8A4" ,
+              "beta": "#4cc3d9" ,
+              "gamma": "#93648d" ,
+              "defaultBand": "#F98790",
+              }
 
 list_ppl = [
     "RegCSP+shLDA",
@@ -291,7 +293,7 @@ for s in range(14):
     plt.ylim(0.4, 1)
     plt.savefig(
         path_figures_root
-        + "/Schirrmeister2017/DR_chan_select/Opt_DR_IndivSubj_ImCoh_Instantaneous_paper_Schirrmeister2017_lines_indiv_subj"
+        + "/Schirrmeister2017/Opt_DR_IndivSubj_ImCoh_Instantaneous_paper_Schirrmeister2017_lines_indiv_subj"
         + str(s+1)
         + ".pdf",
         dpi=300,
@@ -314,7 +316,7 @@ plt.suptitle("Group results")
 plt.ylim(0.4, 1)
 plt.savefig(
     path_figures_root
-    + "/Schirrmeister2017/DR_chan_select/Opt_DR_AllSubj_ImCoh_Instantaneous_paper_Schirrmeister2017_lines_Group_10subj.pdf",
+    + "/Schirrmeister2017/Opt_DR_AllSubj_ImCoh_Instantaneous_paper_Schirrmeister2017_lines_Group_10subj.pdf",
     dpi=300,
 )
 
@@ -337,7 +339,7 @@ plt.suptitle("Group results")
 plt.ylim(0.4, 1)
 plt.savefig(
     path_figures_root
-    + "/Schirrmeister2017/DR_chan_select/Opt_DR_AllSubjIndiv_ImCoh_Instantaneous_paper_Schirrmeister2017_lines_Group_10subj.pdf",
+    + "/Schirrmeister2017/Opt_DR_AllSubjIndiv_ImCoh_Instantaneous_paper_Schirrmeister2017_lines_Group_10subj.pdf",
     dpi=300,
 )
 
@@ -391,7 +393,7 @@ palette_DR=sns.color_palette([dict_colors["RegCSP+shLDA"],
                            dict_colors["FgMDM"],
                            dict_colors["cov"],
                            dict_colors["ensemble-noDR_best"], # FUCONE
-                            dict_colors["ensemble-DR"]    # FUCONE+DR
+                            dict_colors["ensemble-noDR_4"]    # FUCONE+DR
                                 ])
 results_004_2015_subgroup=results_004_2015[results_004_2015["subject"].isin(subgroup_list)]
 list_ppl = [
@@ -430,7 +432,7 @@ plt.ylabel("Score", fontsize=18)
 plt.suptitle("Patient A")
 plt.savefig(
     path_figures_root
-    + "Clinical_Opt_DR_BarPlot_PatientA.pdf",
+    + "Clinical/Clinical_Opt_DR_BarPlot_PatientA.pdf",
     dpi=300,
 )
 
@@ -468,7 +470,7 @@ for sp in results_2class_rf_DR["subject"].unique()[:1]:
             val.append(a_dictionary)
 
 DR_chan_select = DR_chan_select.append(val, True)
-_plot_topo_features_clin(path_figures_root=path_figures_root, dataset=BNCI2015004(), df_res_chan=DR_chan_select)
+_plot_topo_features_clin(path_figures_root=path_figures_root+'Clinical/', dataset=BNCI2015004(), df_res_chan=DR_chan_select)
 
 
 
