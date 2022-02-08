@@ -85,7 +85,7 @@ pipelines['CSP_LDA'] = make_pipeline(
 
 ##
 
-d = loadmat(basedir+"/moabb_connect/100_Matlab_scripts/NoiseEffect_V2.mat", squeeze_me=True)
+d = loadmat(basedir+"/moabb_connect/100_Matlab_scripts/NoiseEffect_4s.mat", squeeze_me=True)
 list_noise=d['simu_noise'][0,:]
 for kk_noise, ampl_noise in enumerate(list_noise):
     data=d['simu_noise'][1,kk_noise]
