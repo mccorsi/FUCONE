@@ -109,19 +109,24 @@ time = np.arange(len(eeg[0]))/sfreq
 
 plt.close("all")
 plt.style.use("dark_background")
-f, ax = plt.subplots(figsize=(18, 12))
-plt.plot(time,eeg.T)
+fig, ax = plt.subplots(1, 1, figsize=(12, 8))
+colors = plt.cm.Set3(np.linspace(0, 1, 9))
+for i in range(n_elec):
+    plt.plot(time, eeg.T[:,i], color=colors[i], linewidth=6)
+#plt.plot(time,eeg.T, linewidth=6)
 plt.legend(('elec. #1', 'elec. #2', 'elec. #3', 'elec. #4'),
-           bbox_to_anchor=(1.08, 0.5), frameon=False)
+           loc='best', frameon=False, prop={'size': 15})
 ax.set_facecolor("black")
 ax.spines["right"].set_visible(False)
 ax.spines["top"].set_visible(False)
-plt.ylim([-5, 5])
+plt.ylim([-6, 6])
 plt.xlim([0, 1.2])
 plt.grid(False)
-plt.xlabel('Time (s)')
-plt.ylabel('Amplitude (A.U.)')
-plt.title('Simulated signals from 4 synthetic electrodes')
+plt.xlabel('Time (s)', fontsize=30)
+plt.ylabel('Amplitude (A.U.)', fontsize=30)
+plt.title('Simulated signals from 4 synthetic electrodes', fontsize=30)
+plt.xticks(fontsize=24)
+plt.yticks(fontsize=24)
 plt.savefig(path_figures_root + "Toy_model_Synthetic_Signals.pdf", dpi=300)
 
 
@@ -211,47 +216,53 @@ coh_d = np.array(coh_d)
 imcoh_d = np.array(imcoh_d)
 
 mpl.style.use("seaborn-muted")
-f, ax = plt.subplots(figsize=(18, 12))
+fig, ax = plt.subplots(1, 1, figsize=(12, 8))
 lcov = ax.plot(
     p_space,
     cov_d,
     label=r"$\delta(\mathrm{cov}_{\mathrm{ref}}, \mathrm{cov})$",
-    color="C0", linewidth=3
+    color="C0", linewidth=6
 )
 ax2 = ax.twinx()
 lcoh = ax2.plot(
     p_space,
     coh_d,
     label=r"$\delta(\mathrm{coh}_{\mathrm{ref}}, \mathrm{coh})$",
-    color="C1", linewidth=3
+    color="C1", linewidth=6
 )
 limcoh = ax2.plot(
     p_space,
     imcoh_d,
     label=r"$\delta(\mathrm{imcoh}_{\mathrm{ref}}, \mathrm{imcoh})$",
-    color="C2", linewidth=3
+    color="C2", linewidth=6
 )
-ax.set_xlabel("Source phase")
+ax.set_xlabel("Source phase", fontsize=30)
 # ax.xaxis.set_ticks([1 * np.pi, 2 * np.pi, 3 * np.pi, 4 * np.pi, 5 * np.pi])
 # ax.xaxis.set_ticklabels([r"$-\pi$", "0", r"$\pi$", r"$2\pi$", r"$3\pi$"])
 ax.xaxis.set_ticks([1 * np.pi, 2 * np.pi, 3 * np.pi, 4 * np.pi, 5 * np.pi])
-ax.xaxis.set_ticklabels([r"$\pi$", r"$2\pi$", r"$3\pi$", r"$4\pi$", r"$5\pi$"])
+ax.xaxis.set_ticklabels([r"$\pi$", r"$2\pi$", r"$3\pi$", r"$4\pi$", r"$5\pi$"], fontsize=24)
 ax.xaxis.set_minor_locator(mpl.ticker.MultipleLocator(20))
 ax.grid(visible=False, axis="both", which="both")
 ax2.grid(visible=False)
+ax.tick_params(axis='y', labelsize=24)
 ax.spines["top"].set_visible(False)
 ax2.spines["top"].set_visible(False)
-ax.yaxis.set_ticklabels([])
-ax2.yaxis.set_ticks([])
-ax.set_ylabel("$\delta$")
-ax.set_ylabel("$\delta$ (cov)")
-ax2.set_ylabel("$\delta$ (coh, imcoh)")
+#ax.yaxis.set_ticklabels([])
+#ax2.yaxis.set_ticks([])
+ax.set_ylabel("$\delta$", fontsize=30)
+
+plt.yticks(fontsize=24)
+ax.set_ylabel("$\delta$ (cov)", fontsize=30)
+ax2.set_ylabel("$\delta$ (coh, imcoh)", fontsize=30)
+
 ax.set_xlim(1.5 * np.pi, 4.5 * np.pi)
-ax.set_title("Phase influence")
+ax.set_title("Phase influence", fontsize=30)
 lns = lcov + lcoh + limcoh
 labs = [l.get_label() for l in lns]
-ax.legend(lns, labs, bbox_to_anchor=(1.14, 1), frameon=False)
-#plt.legend(bbox_to_anchor=(1.08, 0.5), frameon=False)
+#ax.legend(lns, labs, bbox_to_anchor=(1.00, 1.114), frameon=False, prop={'size': 21})
+plt.xticks(fontsize=24)
+plt.yticks(fontsize=24)
+plt.savefig(path_figures_root + "Toy_model_Synthetic_Phase.pdf", dpi=300)
 plt.show()
 
 # fig, ax = plt.subplots(1, 1)
@@ -309,37 +320,40 @@ for i in range(len(a_space)):
     imcoh_d.append(distance(imcoh_mats[i], imcoh_mats[idref]))
 
 mpl.style.use("seaborn-muted")
-f, ax = plt.subplots(figsize=(18, 12))
+fig, ax = plt.subplots(1, 1, figsize=(12, 8))
 ax.plot(
     a_space,
     cov_d,
     label=r"$\delta(\mathrm{cov}_{\mathrm{ref}}, \mathrm{cov})$",
-    color="C0", linewidth=3
+    color="C0", linewidth=6
 )
 ax.plot(
     a_space,
     coh_d,
     label=r"$\delta(\mathrm{coh}_{\mathrm{ref}}, \mathrm{coh})$",
-    color="C1", linewidth=3
+    color="C1", linewidth=6
 )
 ax.plot(
     a_space,
     imcoh_d,
     label=r"$\delta(\mathrm{imcoh}_{\mathrm{ref}}, \mathrm{imcoh})$",
-    color="C2", linewidth=3
+    color="C2", linewidth=6
 )
 # ax.vlines(1.., ymin=-1.1, ymax=1.0, linestyles="dashed", color="k")
-ax.set_xlabel("Amplitude ratio")
-ax.set_title("Amplitude influence")
-ax.set_ylabel(r"$\delta$")
-ax.yaxis.set_ticklabels([])
+ax.set_xlabel("Amplitude ratio", fontsize=30)
+ax.set_title("Amplitude influence", fontsize=30)
+ax.set_ylabel(r"$\delta$", fontsize=30)
+#ax.yaxis.set_ticklabels([])
+ax.set_xlim(0, 4)
 ax.xaxis.set_ticks([0.0, 1.0, 2.0, 3.0, 4.0])
 ax.xaxis.set_ticklabels(["0", "1", "2", "3", "4"])
-ax.set_xlim(0, 4)
 ax.spines["right"].set_visible(False)
 ax.spines["top"].set_visible(False)
 ax.grid(visible=False)
-ax.legend(bbox_to_anchor=(1.14, 1), frameon=False)
+ax.legend(bbox_to_anchor=(1.14, 1), frameon=False, prop={'size': 15})
+plt.xticks(fontsize=24)
+plt.yticks(fontsize=24)
+plt.savefig(path_figures_root + "Toy_model_Synthetic_Amplitude.pdf", dpi=300)
 plt.show()
 
 
@@ -393,32 +407,35 @@ ax.plot(
     f_space,
     cov_d,
     label=r"$\delta(\mathrm{cov}_{\mathrm{ref}}, \mathrm{cov})$",
-    color="C0",
+    color="C0", linewidth=6
 )
 ax.plot(
     f_space,
     coh_d,
     label=r"$\delta(\mathrm{coh}_{\mathrm{ref}}, \mathrm{coh})$",
-    color="C1",
+    color="C1", linewidth=6
 )
 ax.plot(
     f_space,
     imcoh_d,
     label=r"$\delta(\mathrm{imcoh}_{\mathrm{ref}}, \mathrm{imcoh})$",
-    color="C2",
+    color="C2", linewidth=6
 )
 # ax.vlines(10., ymin=-1.1, ymax=1.0, linestyles="dashed", color="k")
 # ax.set_ylim(-1.08, 0.9)
-ax.yaxis.set_ticklabels([])
-ax.set_ylabel(r"$\delta$")
+#ax.yaxis.set_ticklabels([])
+ax.set_ylabel(r"$\delta$", fontsize=30)
 ax.xaxis.set_ticks([10, 20, 30, 40, 50])
 ax.xaxis.set_ticklabels([r"$f$", r"$2f$", r"$3f$", r"$4f$", r"$5f$"])
-ax.set_xlabel("Frequency ratio")
-ax.set_title("Frequency influence")
+ax.set_xlabel("Frequency ratio", fontsize=30)
+ax.set_title("Frequency influence", fontsize=30)
 ax.spines["right"].set_visible(False)
 ax.spines["top"].set_visible(False)
 ax.grid(visible=False)
-ax.legend(bbox_to_anchor=(1.14, 1), frameon=False)
+ax.legend(bbox_to_anchor=(1.14, 1), frameon=False, prop={'size': 15})
+plt.xticks(fontsize=24)
+plt.yticks(fontsize=24)
+plt.savefig(path_figures_root + "Toy_model_Synthetic_Frequency.pdf", dpi=300)
 plt.show()
 
 ##
