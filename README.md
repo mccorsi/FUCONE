@@ -32,7 +32,7 @@ All data associated with this manuscript are publicly available and can be found
 
 ## Code
 This repository contains the code used to run the analysis performed and to plot the figures.
-To install all the packages used in this work you can directy type in your terminal:
+To install all the packages used in this work you can directly type in your terminal:
 `pip install -r requirements.txt`
 
 
