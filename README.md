@@ -2,8 +2,8 @@
 ---
 This repository contains the code and supporting documents associated with the following manuscript:
 
-IEEE version: https://ieeexplore.ieee.org/document/9722980
-OA access: https://arxiv.org/abs/2111.03122
+- IEEE version: https://ieeexplore.ieee.org/document/9722980
+- OA access: https://arxiv.org/abs/2111.03122
 
 Please cite as:
 
