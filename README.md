@@ -7,7 +7,7 @@ This repository contains the code and supporting documents associated with the f
 
 Please cite as:
 
-Corsi, M.-C., Chevallier, S., De Vico Fallani, F. & Yger, F. (2022). Functional connectivity ensemble method to enhance BCI performance (FUCONE). IEEE TBME. http://doi:10.1109/TBME.2022.3154885
+Corsi, M.-C., Chevallier, S., De Vico Fallani, F. & Yger, F. (2022). Functional connectivity ensemble method to enhance BCI performance (FUCONE). IEEE TBME. https://doi.org/10.1109/TBME.2022.3154885
 
 
 ---
