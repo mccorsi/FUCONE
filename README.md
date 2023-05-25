@@ -12,8 +12,8 @@ Corsi, M.-C., Chevallier, S., De Vico Fallani, F. & Yger, F. (2022). Functional 
 
 ---
 ## Authors:
-* [Marie-Constance Corsi](https://marieconstance-corsi.netlify.app), Postdoctoral Researcher, Aramis team-project, Inria Paris, Paris Brain Institute
-* [Sylvain Chevallier](https://sylvchev.github.io), Associate professor, LISV, Paris-Saclay University
+* [Marie-Constance Corsi](https://marieconstance-corsi.netlify.app), Research Scientist, Aramis team-project, Inria Paris, Paris Brain Institute
+* [Sylvain Chevallier](https://sylvchev.github.io), Professor, LISN, Paris-Saclay University
 * [Fabrizio De Vico Fallani](https://sites.google.com/site/devicofallanifabrizio/), Research Scientist, Aramis team-project, Inria Paris, Paris Brain Institute
 * [Florian Yger](http://www.yger.fr), Associate professor, LAMSADE, Paris-Dauphine University
 
